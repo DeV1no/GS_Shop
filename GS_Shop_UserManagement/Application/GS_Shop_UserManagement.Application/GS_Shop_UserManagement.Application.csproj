@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj" />
+	  <ProjectReference Include="..\..\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj" />
 	</ItemGroup>
 
 </Project>

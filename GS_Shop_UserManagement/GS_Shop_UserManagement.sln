@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Domain", "GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj", "{7EB685BA-F080-4FC2-A268-439B5BEF839B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Domain", ".\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj", "{7EB685BA-F080-4FC2-A268-439B5BEF839B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{ECAB5D80-2D72-4064-84A1-A4BE75BB5267}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{2DE0B6D1-401E-45E5-B3DB-D549296DD2A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Api", "..\..\Api\GS_Shop_UserManagement.Api\GS_Shop_UserManagement.Api.csproj", "{6EF42603-CDD6-49B9-8C65-0C592A3CB77E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Api", ".\Api\GS_Shop_UserManagement.Api\GS_Shop_UserManagement.Api.csproj", "{6EF42603-CDD6-49B9-8C65-0C592A3CB77E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{7CC559D4-4DDD-4EB0-A59C-A30F3D20A68C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{8CD33560-0D1B-46C6-ABFE-481FE9472D44}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Persistence", "..\..\Infrastructure\Persistence\GS_Shop_UserManagement.Persistence\GS_Shop_UserManagement.Persistence.csproj", "{A0FD22FD-9208-4D6E-9451-43250E178C46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Persistence", ".\Infrastructure\Persistence\GS_Shop_UserManagement.Persistence\GS_Shop_UserManagement.Persistence.csproj", "{A0FD22FD-9208-4D6E-9451-43250E178C46}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{07288BD0-601F-4A8D-A4E9-FD7B3BEDC63C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Application", "..\..\Application\GS_Shop_UserManagement.Application\GS_Shop_UserManagement.Application.csproj", "{B323DF43-DBB0-41FA-BD3E-9A9374AABC9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GS_Shop_UserManagement.Application", ".\Application\GS_Shop_UserManagement.Application\GS_Shop_UserManagement.Application.csproj", "{B323DF43-DBB0-41FA-BD3E-9A9374AABC9D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{AAD3AC81-9E2C-4E02-8C0A-0C74BA117159}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop_UserManagement.Infrastructure", "..\..\Infrastructure\Infrastructure\GS_Shop_UserManagement.Infrastructure\GS_Shop_UserManagement.Infrastructure.csproj", "{C57E4854-B80B-4FE6-86B9-99BA0AC44091}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop_UserManagement.Infrastructure", ".\Infrastructure\Infrastructure\GS_Shop_UserManagement.Infrastructure\GS_Shop_UserManagement.Infrastructure.csproj", "{C57E4854-B80B-4FE6-86B9-99BA0AC44091}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
