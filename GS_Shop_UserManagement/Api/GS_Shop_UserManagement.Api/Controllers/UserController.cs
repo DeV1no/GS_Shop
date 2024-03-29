@@ -16,10 +16,18 @@ public class UserController : ControllerBase
     }
 
 
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
     {
         var command = new RegisterUserCommand { RegisterUserDto = dto };
+        var response = await _mediator.Send(command);
+        return Ok(response);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> login([FromBody] LoginDto dto)
+    {
+        var command = new LoginUserCommand() { LoginDto = dto };
         var response = await _mediator.Send(command);
         return Ok(response);
     }

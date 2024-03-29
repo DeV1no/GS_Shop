@@ -6,8 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using GS_Shop_UserManagement.Application.Models;
-using GS_Shop_UserManagement.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+
 namespace GS_Shop_UserManagement.Application
 {
     public static class ApplicationServicesRegistration
@@ -23,11 +22,7 @@ namespace GS_Shop_UserManagement.Application
             var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
-            // Configure Identity
-            
-
-            // Register AuthService
-            //   services.AddTransient<IAuthService, AuthService>();
+            // Configure Identity : is in PersistenceServiceRegistration
 
             // Configure JWT authentication
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
