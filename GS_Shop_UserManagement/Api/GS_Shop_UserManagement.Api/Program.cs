@@ -1,3 +1,4 @@
+using GS_Shop_UserManagement.Application;
 using GS_Shop_UserManagement.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigurePersistenceServices(builder.Configuration);
+builder.Services.ConfigureApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
