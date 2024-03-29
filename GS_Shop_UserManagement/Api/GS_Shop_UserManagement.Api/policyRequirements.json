@@ -1,0 +1,10 @@
+{
+  "AuthorizationPolicies": [
+    {
+      "PolicyName": "GetWeatherForecastPolicy",
+      "RequiredClaims": [
+        "GetWeatherForecast"
+      ]
+    }
+  ]
+}

@@ -21,7 +21,7 @@ namespace GS_Shop_UserManagement.Api.Controllers
 
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetWeatherForecastPolicy")]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
