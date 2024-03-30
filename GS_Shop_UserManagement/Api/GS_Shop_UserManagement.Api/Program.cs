@@ -1,8 +1,7 @@
 using GS_Shop_UserManagement.Application;
 using GS_Shop_UserManagement.Persistence;
 using Microsoft.OpenApi.Models;
-using System.Configuration;
-using GS_Shop_UserManagement.Api;
+using GS_Shop_UserManagement.Infrastructure;
 using GS_Shop_UserManagement.Infrastructure.Policy;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,9 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 AddSwagger(builder.Services);
 builder.Configuration
-    .AddJsonFile("policyRequirements.json", optional: true, reloadOnChange: true);
+    .AddJsonFile("policyRequirements.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("limitationClaims.json", optional: true, reloadOnChange: true);
 builder.Services.ConfigurePersistenceServices(builder.Configuration);
 builder.Services.ConfigureApplicationServices(builder.Configuration);
+builder.Services.ConfigureInfrastructureServices(builder.Configuration);
 var policyRequirements = AuthorizationPolicyLoader.LoadPolicies(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {

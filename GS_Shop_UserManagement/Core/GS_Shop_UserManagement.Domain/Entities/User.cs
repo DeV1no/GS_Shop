@@ -3,8 +3,8 @@ using GS_Shop_UserManagement.Domain.Common;
 using Microsoft.AspNetCore.Identity;
 
 
-namespace GS_Shop_UserManagement.Domain.Entities
-{
+namespace GS_Shop_UserManagement.Domain.Entities;
+
     public class User : IdentityUser<int>
     {
         public string FirstName { get; set; } = string.Empty;
@@ -15,5 +15,5 @@ namespace GS_Shop_UserManagement.Domain.Entities
         public string CreatedBy { get; } = string.Empty;
         public DateTime LastModifiedDate { get; set; }
         public string LastModifiedBy { get; } = string.Empty;
+        public IList<UserClaimLimitation> UserClaimLimitations { get; set; } = new List<UserClaimLimitation>();
     }
-}

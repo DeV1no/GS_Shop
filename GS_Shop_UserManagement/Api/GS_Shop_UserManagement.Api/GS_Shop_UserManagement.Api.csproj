@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Application\GS_Shop_UserManagement.Application\GS_Shop_UserManagement.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure\GS_Shop_UserManagement.Infrastructure\GS_Shop_UserManagement.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Persistence\GS_Shop_UserManagement.Persistence\GS_Shop_UserManagement.Persistence.csproj" />
   </ItemGroup>
 

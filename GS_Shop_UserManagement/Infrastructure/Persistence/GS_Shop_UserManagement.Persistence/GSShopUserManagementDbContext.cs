@@ -4,6 +4,7 @@ using GS_Shop_UserManagement.Domain.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using GS_Shop_UserManagement.Domain.Configurations;
 
 namespace GS_Shop_UserManagement.Persistence
 {
@@ -17,13 +18,18 @@ namespace GS_Shop_UserManagement.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserClaim> UserClaims { get; set; }
+        public DbSet<UserClaimLimitation> UserLimitationClaims { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(GSShopUserManagementDbContext).Assembly);
 
-            // Explicitly ignore the Claims property of User entity
-            // modelBuilder.Entity<User>().Ignore(u => u.Claims);
+            base.OnModelCreating(modelBuilder);
+            new UserConfiguration(modelBuilder.Entity<User>());
+            new RoleConfiguration(modelBuilder.Entity<Role>());
+            new UserClaimConfiguration(modelBuilder.Entity<UserClaim>());
+            new UserClaimLimitationConfiguration(modelBuilder.Entity<UserClaimLimitation>());
+
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
