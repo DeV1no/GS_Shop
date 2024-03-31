@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj" />
     <ProjectReference Include="..\..\Persistence\GS_Shop_UserManagement.Persistence\GS_Shop_UserManagement.Persistence.csproj" />
   </ItemGroup>
+
 
 </Project>

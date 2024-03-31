@@ -5,6 +5,12 @@
       "RequiredClaims": [
         "GetWeatherForecast"
       ]
+    },
+    {
+      "PolicyName": "GetUserListPolicy",
+      "RequiredClaims": [
+        "GetUserList"
+      ]
     }
   ]
 }

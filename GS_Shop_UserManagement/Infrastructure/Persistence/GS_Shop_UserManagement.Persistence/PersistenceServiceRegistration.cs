@@ -1,6 +1,7 @@
 ﻿using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Domain.Entities;
 using GS_Shop_UserManagement.Persistence.Repositories;
+using GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ public static class PersistenceServiceRegistration
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(ISmartLimitationService<>), typeof(SmartLimitationService<>));
 
         services.AddDbContext<GSShopUserManagementDbContext>(opt =>
         {

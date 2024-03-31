@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-
 using System.Text.Json;
-namespace GS_Shop_UserManagement.Infrastructure.SmartLimit;
+
+namespace GS_Shop_UserManagement.Persistence.SmartLimit;
 
 public static class LimitationClaimLoader
 {

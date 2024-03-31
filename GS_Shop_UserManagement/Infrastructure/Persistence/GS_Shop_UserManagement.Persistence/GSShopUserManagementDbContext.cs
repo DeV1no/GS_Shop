@@ -15,6 +15,8 @@ namespace GS_Shop_UserManagement.Persistence
         {
         }
 
+     
+
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserClaim> UserClaims { get; set; }

@@ -1,6 +1,8 @@
 ﻿using GS_Shop_UserManagement.Application.DTOs.User;
 using GS_Shop_UserManagement.Application.Features.User.Requests.Commands;
+using GS_Shop_UserManagement.Application.Features.User.Requests.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GS_Shop_UserManagement.Api.Controllers;
@@ -14,7 +16,13 @@ public class UserController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetUserListPolicy")]
+    [HttpGet("getAll")]
+    public async Task<IActionResult> GetAll()
+    {
+        var allocationList = await _mediator.Send(new GetAllUserRequest());
+        return Ok(allocationList);
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
