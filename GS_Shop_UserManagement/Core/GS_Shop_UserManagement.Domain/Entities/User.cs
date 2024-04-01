@@ -19,3 +19,4 @@ public class User : IdentityUser<int>
     public string LastModifiedBy { get; } = string.Empty;
     public IList<UserClaimLimitation> UserClaimLimitations { get; set; } = new List<UserClaimLimitation>();
 }
+ 

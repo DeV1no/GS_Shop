@@ -38,8 +38,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 
     public async Task<IReadOnlyList<User>> GetAll()
     {
-        var limitedShopsQuery = await _smartLimitationService.GetLimitedEntitiesQueryAsync();
-        var limitedShops = limitedShopsQuery.ToList(); // Execute the query to get the limited shops
-        return limitedShops;
+        var limitedEntitiesQuery = await _smartLimitationService.GetLimitedEntitiesQueryAsync().ToListAsync();
+        return limitedEntitiesQuery;
     }
 }

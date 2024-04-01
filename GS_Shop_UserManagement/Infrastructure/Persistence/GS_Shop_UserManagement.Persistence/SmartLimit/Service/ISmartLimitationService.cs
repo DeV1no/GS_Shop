@@ -2,5 +2,5 @@
 
 public interface ISmartLimitationService<TEntity>
 {
-    public Task<IQueryable<TEntity>> GetLimitedEntitiesQueryAsync();
+    public IQueryable<TEntity> GetLimitedEntitiesQueryAsync();
 }

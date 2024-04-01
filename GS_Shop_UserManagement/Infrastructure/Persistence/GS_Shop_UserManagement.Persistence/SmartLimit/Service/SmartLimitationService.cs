@@ -1,27 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using GS_Shop_UserManagement.Domain.Enums;
 
 namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 
-public class SmartLimitationService<TEntity> : ISmartLimitationService<TEntity> where TEntity : class
+public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbContext,
+        IHttpContextAccessor httpContextAccessor)
+    : ISmartLimitationService<TEntity>
+    where TEntity : class
 {
-    private readonly GSShopUserManagementDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public SmartLimitationService(GSShopUserManagementDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public IQueryable<TEntity> GetLimitedEntitiesQueryAsync()
     {
-        _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
-    }
+        var userClaims = (httpContextAccessor.HttpContext?.User)
+                         ?? throw new InvalidOperationException("No user claims found.");
 
-    public async Task<IQueryable<TEntity>> GetLimitedEntitiesQueryAsync()
-    {
-        var userClaims = (_httpContextAccessor.HttpContext?.User) ?? throw new InvalidOperationException("No user claims found.");
         var entityType = typeof(TEntity);
         var limitationTag = GetLimitationTag(entityType);
-        var limitationClaims = GetLimitationClaims(userClaims, limitationTag); // Get all limitation claims dynamically
+        var limitationClaims = GetLimitationClaims(userClaims, limitationTag);
 
         if (string.IsNullOrEmpty(limitationTag))
         {
@@ -32,13 +29,30 @@ public class SmartLimitationService<TEntity> : ISmartLimitationService<TEntity> 
             .Select(int.Parse)
             .ToList();
 
-        var limitedEntities = await _dbContext.Set<TEntity>().ToListAsync();
+        var entities = dbContext.Set<TEntity>();
 
-        // Filter entities based on the limitation IDs
-        var result = limitedEntities.Where(entity => limitationClaimToIntList.Contains(GetEntityId(entity))).AsQueryable();
+        // Build expression for Id property
+        var parameter = Expression.Parameter(typeof(TEntity), "entity");
+        var property = Expression.Property(parameter, "Id");
+        var lambda = Expression.Lambda<Func<TEntity, int>>(property, parameter);
+
+        // Compose the where clause dynamically
+        var containsMethod = typeof(Enumerable).GetMethods()
+            .Single(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+            .MakeGenericMethod(typeof(int));
+
+        var constant = Expression.Constant(limitationClaimToIntList);
+        var containsExpression = Expression.Call(containsMethod, constant, property);
+        var whereExpression = Expression.Lambda<Func<TEntity, bool>>(containsExpression, parameter);
+
+        // Apply the where clause
+        var result = entities.Where(whereExpression);
 
         return result;
     }
+
+
+
 
     private Claim GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
     {
@@ -47,38 +61,11 @@ public class SmartLimitationService<TEntity> : ISmartLimitationService<TEntity> 
 
     }
 
-    private IEnumerable<int> GetLimitationIds(ClaimsPrincipal userClaims, IEnumerable<string> limitationClaims)
-    {
-        // Extract limitation IDs from the claims in the token
-        var limitationIds = new List<int>();
-        foreach (var claim in userClaims.Claims)
-        {
-            if (limitationClaims.Contains(claim.Type))
-            {
-                var ids = claim.Value.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(int.Parse);
-                limitationIds.AddRange(ids);
-            }
-        }
-        return limitationIds.Distinct();
-    }
-
     private string GetLimitationTag(Type entityType)
     {
         // Get the limitation tag associated with the entity type
         var attribute = entityType.GetCustomAttributes(typeof(SmartLimitTagAttribute), inherit: true)
             .FirstOrDefault() as SmartLimitTagAttribute;
         return attribute?.LimitationTag!;
-    }
-
-    private int GetEntityId(TEntity entity)
-    {
-        // Assuming the entity has an 'Id' property
-        var property = typeof(TEntity).GetProperty("Id");
-        if (property == null)
-        {
-            throw new InvalidOperationException("Entity must have an 'Id' property.");
-        }
-        return (int)property.GetValue(entity)!;
     }
 }
