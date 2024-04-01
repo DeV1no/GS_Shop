@@ -39,4 +39,13 @@ public class UserController : ControllerBase
         var response = await _mediator.Send(command);
         return Ok(response);
     }
+
+    [HttpPut]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "UpdateUserPolicy")]
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto dto)
+    {
+        var command = new UpdateUserCommand { UpdateUserDto = dto };
+        var response = await _mediator.Send(command);
+        return Ok(response);
+    }
 }

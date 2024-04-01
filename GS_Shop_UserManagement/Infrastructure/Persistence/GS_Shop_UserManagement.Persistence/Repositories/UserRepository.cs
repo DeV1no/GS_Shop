@@ -36,9 +36,11 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return user;
     }
 
-    public async Task<IReadOnlyList<User>> GetAll()
-    {
-        var limitedEntitiesQuery = await _smartLimitationService.GetLimitedEntitiesQueryAsync().ToListAsync();
-        return limitedEntitiesQuery;
-    }
+    public new async Task<IReadOnlyList<User>> GetAll()
+        => await _smartLimitationService.GetLimitedEntitiesQueryAsync().ToListAsync();
+
+
+    public new Task<User> Update(User entity)
+        => _smartLimitationService.UpdateLimitationAsync(entity);
+
 }

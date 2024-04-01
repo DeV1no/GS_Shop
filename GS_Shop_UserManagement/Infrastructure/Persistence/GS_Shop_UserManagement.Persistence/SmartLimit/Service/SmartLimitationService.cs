@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using GS_Shop_UserManagement.Domain.Enums;
+using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
 
 namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 
@@ -42,7 +44,27 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         return result;
     }
 
+    public async Task<TEntity> UpdateLimitationAsync(TEntity entity)
+    {
+        var entityId = GetEntityId(entity);
 
+        // Fetch the entities from the database
+        var limitedEntities = await GetLimitedEntitiesQueryAsync().ToListAsync();
+
+        // Check if the user has access to update the entity by its ID
+        var isEntityExistOrAccessed = limitedEntities.Any(e => GetEntityId(e) == entityId);
+
+        if (!isEntityExistOrAccessed)
+        {
+            throw new UnauthorizedAccessException("User does not have access to update this entity.");
+        }
+
+        // Proceed with the update operation
+        dbContext.Update(entity);
+        await dbContext.SaveChangesAsync();
+
+        return entity;
+    }
 
 
     private Claim? GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
@@ -58,5 +80,13 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         var attribute = entityType.GetCustomAttributes(typeof(SmartLimitTagAttribute), inherit: true)
             .FirstOrDefault() as SmartLimitTagAttribute;
         return attribute?.LimitationTag!;
+    }
+    private int GetEntityId(TEntity entity)
+    {
+        // Assuming the entity has an 'Id' property
+        var property = typeof(TEntity).GetProperty("Id");
+        return property == null
+            ? throw new InvalidOperationException("Entity must have an 'Id' property.")
+            : (int)property.GetValue(entity)!;
     }
 }

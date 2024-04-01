@@ -11,6 +11,12 @@
       "RequiredClaims": [
         "GetUserList"
       ]
+    },
+    {
+      "PolicyName": "UpdateUserPolicy",
+      "RequiredClaims": [
+        "UpdateUser"
+      ]
     }
   ]
 }

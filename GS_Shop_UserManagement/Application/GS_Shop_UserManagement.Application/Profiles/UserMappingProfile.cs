@@ -11,5 +11,6 @@ public class UserMappingProfile : Profile
         CreateMap<RegisterUserDto, User>()
             .ForMember(x => x.Id, opt => opt.Ignore());
         CreateMap<User, UserListDto>();
+        CreateMap<UpdateUserDto, User>();
     }
 }
