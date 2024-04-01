@@ -1,8 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using GS_Shop_UserManagement.Domain.Enums;
-using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 
 namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
@@ -18,13 +16,12 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         var userClaims = httpContextAccessor.HttpContext?.User;
         if (userClaims is null)
             return entities;
-
         var entityType = typeof(TEntity);
-        var limitationTag = GetLimitationTag(entityType);
-        var limitationClaims = GetLimitationClaims(userClaims, limitationTag);
+        var entityName= entityType.Name;
+        var limitationClaims = GetLimitationClaims(userClaims, entityName);
         if (limitationClaims is null)
             return entities;
-        if (string.IsNullOrEmpty(limitationTag))
+        if (string.IsNullOrEmpty(entityName))
             throw new InvalidOperationException($"No limitation tag found for entity type {entityType.Name}.");
         var limitationClaimToIntList = limitationClaims.Value.Split(',')
             .Select(int.Parse)
@@ -70,17 +67,16 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
     private Claim? GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
     {
         // Find all claims with a name ending with "Limitation" in the user's claims
-        return userClaims.Claims.FirstOrDefault(c => c.Type.EndsWith("Limitation") && c.Type == limitationTag);
-
+        return userClaims.Claims.FirstOrDefault(c =>  c.Type == limitationTag);
     }
 
-    private string GetLimitationTag(Type entityType)
-    {
-        // Get the limitation tag associated with the entity type
-        var attribute = entityType.GetCustomAttributes(typeof(SmartLimitTagAttribute), inherit: true)
-            .FirstOrDefault() as SmartLimitTagAttribute;
-        return attribute?.LimitationTag!;
-    }
+    // private string GetLimitationTag(Type entityType)
+    // {
+    //     // Get the limitation tag associated with the entity type
+    //     var attribute = entityType.GetCustomAttributes(typeof(SmartLimitTagAttribute), inherit: true)
+    //         .FirstOrDefault() as SmartLimitTagAttribute;
+    //     return attribute?.LimitationTag!;
+    // }
     private int GetEntityId(TEntity entity)
     {
         // Assuming the entity has an 'Id' property

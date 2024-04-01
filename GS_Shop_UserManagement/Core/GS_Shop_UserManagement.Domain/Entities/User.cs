@@ -1,12 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using GS_Shop_UserManagement.Domain.Common;
-using GS_Shop_UserManagement.Domain.Enums;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 
 namespace GS_Shop_UserManagement.Domain.Entities;
 
-[SmartLimitTag("UserLimitation")]
 public class User : IdentityUser<int>
 {
     public string FirstName { get; set; } = string.Empty;
