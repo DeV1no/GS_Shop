@@ -48,4 +48,13 @@ public class UserController : ControllerBase
         var response = await _mediator.Send(command);
         return Ok(response);
     }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "DeleteUserPolicy")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var command = new DeleteUserCommand { Id = id };
+        var response = await _mediator.Send(command);
+        return Ok(response);
+    }
 }

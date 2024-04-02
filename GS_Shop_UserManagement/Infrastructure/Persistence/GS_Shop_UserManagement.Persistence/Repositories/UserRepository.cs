@@ -36,11 +36,18 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return user;
     }
 
+    public async Task<bool> Delete(int id)
+    {
+        await _smartLimitationService.DeleteLimitationAsync(id);
+        return true;
+    }
+
     public new async Task<IReadOnlyList<User>> GetAll()
         => await _smartLimitationService.GetLimitedEntitiesQueryAsync().ToListAsync();
 
 
     public new Task<User> Update(User entity)
         => _smartLimitationService.UpdateLimitationAsync(entity);
+
 
 }

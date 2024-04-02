@@ -17,6 +17,12 @@
       "RequiredClaims": [
         "UpdateUser"
       ]
+    },
+    {
+      "PolicyName": "DeleteUserPolicy",
+      "RequiredClaims": [
+        "DeleteUser"
+      ]
     }
   ]
 }

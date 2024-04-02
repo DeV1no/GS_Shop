@@ -6,4 +6,5 @@ public interface IUserRepository : IGenericRepository<User>
 {
     Task<bool> IsUserExistByUserAndEmail(string userName, string email);
     Task<User> GetUserByUserAndPassword(string password, string userName);
+    Task<bool> Delete(int id);
 }

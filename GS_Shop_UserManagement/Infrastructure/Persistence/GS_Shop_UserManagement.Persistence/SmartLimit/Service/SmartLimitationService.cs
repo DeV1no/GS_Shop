@@ -17,7 +17,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         if (userClaims is null)
             return entities;
         var entityType = typeof(TEntity);
-        var entityName= entityType.Name;
+        var entityName = entityType.Name;
         var limitationClaims = GetLimitationClaims(userClaims, entityName);
         if (limitationClaims is null)
             return entities;
@@ -63,11 +63,32 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         return entity;
     }
 
+    public async Task<TEntity> DeleteLimitationAsync(int id)
+    {
+        // Fetch the IDs of the entities that the user has access to
+        var entityIds = await GetLimitedEntitiesQueryAsync()
+            .Select(e => GetEntityDeleteId(e))
+            .ToListAsync();
+
+        // Check if the given ID exists in the fetched entity IDs
+        if (!entityIds.Contains(id))
+        {
+            throw new UnauthorizedAccessException("User does not have access to delete this entity.");
+        }
+
+        var entity = await dbContext.Set<TEntity>().FindAsync(id)
+                     ?? throw new Exception("Entity not found.");
+        dbContext.Set<TEntity>().Remove(entity);
+        await dbContext.SaveChangesAsync();
+
+        return entity;
+    }
+
 
     private Claim? GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
     {
         // Find all claims with a name ending with "Limitation" in the user's claims
-        return userClaims.Claims.FirstOrDefault(c =>  c.Type == limitationTag);
+        return userClaims.Claims.FirstOrDefault(c => c.Type == limitationTag);
     }
 
     // private string GetLimitationTag(Type entityType)
@@ -84,5 +105,16 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         return property == null
             ? throw new InvalidOperationException("Entity must have an 'Id' property.")
             : (int)property.GetValue(entity)!;
+    }
+
+    private static int GetEntityDeleteId(TEntity entity)
+    {
+        // Assuming the entity has an 'Id' property
+        var property = typeof(TEntity).GetProperty("Id");
+        if (property == null)
+        {
+            throw new InvalidOperationException("Entity must have an 'Id' property.");
+        }
+        return (int)property.GetValue(entity)!;
     }
 }
