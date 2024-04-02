@@ -49,7 +49,7 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginResponseD
             new(ClaimTypes.Email, user.Email!),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
-        claims.AddRange(user.UserClaims.Select(userClaim => new Claim(userClaim.ClaimType, userClaim.ClaimValue)));
+        claims.AddRange(user.UserClaims.Select(userClaim => new Claim(userClaim.ClaimType, "true")));
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
         claims.AddRange(user.UserClaimLimitations.Select(lClaim => new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds)));
 

@@ -4,6 +4,7 @@ using GS_Shop_UserManagement.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GS_Shop_UserManagement.Persistence.Migrations
 {
     [DbContext(typeof(GSShopUserManagementDbContext))]
-    partial class GSShopUserManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240402075340_remove_claimValue_UserClaims")]
+    partial class remove_claimValue_UserClaims
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

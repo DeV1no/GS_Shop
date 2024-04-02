@@ -91,13 +91,6 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         return userClaims.Claims.FirstOrDefault(c => c.Type == limitationTag);
     }
 
-    // private string GetLimitationTag(Type entityType)
-    // {
-    //     // Get the limitation tag associated with the entity type
-    //     var attribute = entityType.GetCustomAttributes(typeof(SmartLimitTagAttribute), inherit: true)
-    //         .FirstOrDefault() as SmartLimitTagAttribute;
-    //     return attribute?.LimitationTag!;
-    // }
     private int GetEntityId(TEntity entity)
     {
         // Assuming the entity has an 'Id' property

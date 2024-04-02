@@ -9,7 +9,6 @@ public class UserClaimConfiguration
     {
         builder.HasIndex(x => x.Id);
         builder.Property(x => x.ClaimType).IsRequired();
-        builder.Property(x => x.ClaimValue).IsRequired();
         builder.HasOne(x => x.User).WithMany(x => x.UserClaims);
 
     }
