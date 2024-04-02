@@ -15,5 +15,9 @@
     <ProjectReference Include="..\..\Persistence\GS_Shop_UserManagement.Persistence\GS_Shop_UserManagement.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logging\Mongo\" />
+  </ItemGroup>
+
 
 </Project>

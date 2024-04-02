@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  gs_shop_usermanagement.api:
+    image: ${DOCKER_REGISTRY-}gsshopusermanagementapi
+    build:
+      context: .
+      dockerfile: Api/GS_Shop_UserManagement.Api/Dockerfile
+  sql-server:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      SA_PASSWORD: Admin123
+      ACCEPT_EULA: Y
+    ports:
+      - "1433:1433"
