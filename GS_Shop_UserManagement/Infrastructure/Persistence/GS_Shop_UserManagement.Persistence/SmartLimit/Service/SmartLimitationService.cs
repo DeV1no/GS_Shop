@@ -88,7 +88,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
     private Claim? GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
     {
         // Find all claims with a name ending with "Limitation" in the user's claims
-        return userClaims.Claims.FirstOrDefault(c => c.Type == limitationTag);
+        return userClaims.Claims.FirstOrDefault(c => string.Equals(c.Type, limitationTag, StringComparison.CurrentCultureIgnoreCase));
     }
 
     private int GetEntityId(TEntity entity)
