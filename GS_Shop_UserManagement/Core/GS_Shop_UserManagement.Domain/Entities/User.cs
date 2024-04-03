@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using GS_Shop_UserManagement.Domain.Common;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace GS_Shop_UserManagement.Domain.Entities;
 
-public class User : IdentityUser<int>
+public class User : IdentityUser<int>, IBaseEntity
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

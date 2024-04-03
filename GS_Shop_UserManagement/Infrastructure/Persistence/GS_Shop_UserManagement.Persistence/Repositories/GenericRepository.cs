@@ -1,4 +1,5 @@
 ﻿using GS_Shop_UserManagement.Application.Contracts.Persistence;
+using GS_Shop_UserManagement.Infrastructure.Logging.Mongo.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace GS_Shop_UserManagement.Persistence.Repositories;
@@ -6,11 +7,19 @@ namespace GS_Shop_UserManagement.Persistence.Repositories;
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
     private readonly GSShopUserManagementDbContext _context;
-
+    // private readonly IMongoLoggerService _mongoLoggerService;
+    //
+    // public GenericRepository(GSShopUserManagementDbContext context, MongoLoggerService mongoLoggerService)
+    // {
+    //     _context = context;
+    //     _mongoLoggerService = mongoLoggerService;
+    // }
     public GenericRepository(GSShopUserManagementDbContext context)
     {
         _context = context;
     }
+
+
     public async Task<T?> Get(int id)
     {
         var dd = await _context.Set<T>().FindAsync(id);
@@ -46,4 +55,5 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         var entity = await Get(id);
         return entity != null;
     }
+
 }
