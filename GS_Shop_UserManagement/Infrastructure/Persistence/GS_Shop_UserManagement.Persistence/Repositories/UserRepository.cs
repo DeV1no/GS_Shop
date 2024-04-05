@@ -39,7 +39,7 @@ public class UserRepository(GSShopUserManagementDbContext context,
         if (!result.Succeeded)
             throw new Exception("Failed to create user. Error: " + string.Join(", ", result.Errors.Select(e => e.Description)));
         var requestJson = JsonConvert.SerializeObject(user);
-        await mongoLogger.AddLog(new AddLogDto
+        mongoLogger.AddLog(new AddLogDto
         {
             UserId = user.Id.ToString(),
             EndPointType = EntityEndPointType.Post,
@@ -53,7 +53,7 @@ public class UserRepository(GSShopUserManagementDbContext context,
     public async Task<bool> Delete(int id)
     {
         await smartLimitationService.DeleteLimitationAsync(id);
-        await mongoLogger.AddLog(new AddLogDto
+        mongoLogger.AddLog(new AddLogDto
         {
             EndPointType = EntityEndPointType.Delete, 
             EntityType = "User",
@@ -70,7 +70,7 @@ public class UserRepository(GSShopUserManagementDbContext context,
     public new async Task<User> Update(User entity)
     {
         var requestJson = JsonConvert.SerializeObject(entity);
-        await mongoLogger.AddLog(new AddLogDto
+        mongoLogger.AddLog(new AddLogDto
         {
             UserId = entity.Id.ToString(),
             EndPointType = EntityEndPointType.Put,

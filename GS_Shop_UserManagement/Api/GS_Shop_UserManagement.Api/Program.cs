@@ -3,6 +3,7 @@ using GS_Shop_UserManagement.Persistence;
 using Microsoft.OpenApi.Models;
 using GS_Shop_UserManagement.Infrastructure;
 using GS_Shop_UserManagement.Infrastructure.Policy;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +35,11 @@ builder.Services.AddAuthorization(options =>
         });
     }
 });
+
 var app = builder.Build();
 
+app.UseHangfireDashboard()
+    .UseHangfireServer();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
