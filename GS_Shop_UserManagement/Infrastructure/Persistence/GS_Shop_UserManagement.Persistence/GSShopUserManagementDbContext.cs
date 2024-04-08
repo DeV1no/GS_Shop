@@ -21,6 +21,7 @@ namespace GS_Shop_UserManagement.Persistence
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserClaim> UserClaims { get; set; }
         public DbSet<UserClaimLimitation> UserLimitationClaims { get; set; }
+        public DbSet<FileDetails> FileDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
