@@ -55,6 +55,7 @@ app.MapControllers();
 app.UseStaticFiles();
 
 app.Run();
+return;
 
 void AddSwagger(IServiceCollection services)
 {

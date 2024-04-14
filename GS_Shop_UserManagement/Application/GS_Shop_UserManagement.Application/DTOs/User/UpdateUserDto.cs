@@ -1,4 +1,6 @@
-﻿namespace GS_Shop_UserManagement.Application.DTOs.User;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace GS_Shop_UserManagement.Application.DTOs.User;
 
 public class UpdateUserDto
 {
@@ -7,4 +9,6 @@ public class UpdateUserDto
     public string Email { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
+    public IFormFile? ProfilePic { get; set; }
+
 }

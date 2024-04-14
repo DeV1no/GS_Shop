@@ -1,6 +1,5 @@
 ﻿using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Domain.Entities;
-using GS_Shop_UserManagement.Infrastructure.Logging.Mongo.Services;
 using GS_Shop_UserManagement.Persistence.FileManager.Services;
 using GS_Shop_UserManagement.Persistence.Repositories;
 using GS_Shop_UserManagement.Persistence.SmartLimit.Service;
@@ -18,7 +17,7 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped(typeof(ISmartLimitationService<>), typeof(SmartLimitationService<>));
-        services.AddScoped<IFileService, FileService>();
+        services.AddScoped(typeof(IFileService<>), typeof(FileService<>));
 
         services.AddDbContext<GSShopUserManagementDbContext>(opt =>
         {

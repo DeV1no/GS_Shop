@@ -15,5 +15,7 @@ public class User : IdentityUser<int>, IBaseEntity
     public DateTime LastModifiedDate { get; set; }
     public string LastModifiedBy { get; } = string.Empty;
     public IList<UserClaimLimitation> UserClaimLimitations { get; set; } = new List<UserClaimLimitation>();
+    public FileDetails ProfilePicture { get; set; } = new FileDetails();
+    public int? ProfilePictureId { get; set; }
+    public string? ProfilePicturePath { get; set; }
 }
- 

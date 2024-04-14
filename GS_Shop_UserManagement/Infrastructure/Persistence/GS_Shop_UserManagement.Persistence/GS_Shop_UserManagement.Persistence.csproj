@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FileManager\Services\FileDownload\**" />
+    <EmbeddedResource Remove="FileManager\Services\FileDownload\**" />
+    <None Remove="FileManager\Services\FileDownload\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="FileDownload\" />
-    <Folder Include="FileManager\Services\FileDownload\" />
+    <Folder Include="FileManager\Models\" />
     <Folder Include="Migrations\" />
     <Folder Include="Repositories\" />
     <Folder Include="SmartLimit\Service\" />
@@ -20,9 +26,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Application\GS_Shop_UserManagement.Application\GS_Shop_UserManagement.Application.csproj" />
-    <ProjectReference Include="..\..\..\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Application\GS_Shop_UserManagement.Application\GS_Shop_UserManagement.Application.csproj" />
+		<ProjectReference Include="..\..\..\Core\GS_Shop_UserManagement.Domain\GS_Shop_UserManagement.Domain.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\GS_Shop_UserManagement.Infrastructure\GS_Shop_UserManagement.Infrastructure.csproj" />
+	</ItemGroup>
 
 </Project>

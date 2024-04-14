@@ -1,4 +1,6 @@
-using GS_Shop_UserManagement.Persistence.FileManager.Models;
+using GS_Shop_UserManagement.Application.Contracts.Persistence;
+using GS_Shop_UserManagement.Application.DTOs.FileManager;
+using GS_Shop_UserManagement.Domain.Entities;
 using GS_Shop_UserManagement.Persistence.FileManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +11,10 @@ namespace GS_Shop_UserManagement.Api.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly IFileService _uploadService;
+        private readonly IFileService<User> _uploadService;
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(IFileService uploadService, ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IFileService<User> uploadService, ILogger<WeatherForecastController> logger)
         {
             _uploadService = uploadService;
             _logger = logger;

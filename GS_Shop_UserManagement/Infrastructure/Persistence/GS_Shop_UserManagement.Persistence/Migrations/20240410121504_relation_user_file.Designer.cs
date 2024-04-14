@@ -4,6 +4,7 @@ using GS_Shop_UserManagement.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GS_Shop_UserManagement.Persistence.Migrations
 {
     [DbContext(typeof(GSShopUserManagementDbContext))]
-    partial class GSShopUserManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240410121504_relation_user_file")]
+    partial class relation_user_file
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,6 +101,9 @@ namespace GS_Shop_UserManagement.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("FileDetailsId")
+                        .HasColumnType("int");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -130,12 +136,6 @@ namespace GS_Shop_UserManagement.Persistence.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ProfilePictureId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProfilePicturePath")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -147,9 +147,9 @@ namespace GS_Shop_UserManagement.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("FileDetailsId");
 
-                    b.HasIndex("ProfilePictureId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Users");
                 });
@@ -233,11 +233,11 @@ namespace GS_Shop_UserManagement.Persistence.Migrations
 
             modelBuilder.Entity("GS_Shop_UserManagement.Domain.Entities.User", b =>
                 {
-                    b.HasOne("GS_Shop_UserManagement.Domain.Entities.FileDetails", "ProfilePicture")
+                    b.HasOne("GS_Shop_UserManagement.Domain.Entities.FileDetails", "FileDetails")
                         .WithMany()
-                        .HasForeignKey("ProfilePictureId");
+                        .HasForeignKey("FileDetailsId");
 
-                    b.Navigation("ProfilePicture");
+                    b.Navigation("FileDetails");
                 });
 
             modelBuilder.Entity("GS_Shop_UserManagement.Domain.Entities.UserClaim", b =>

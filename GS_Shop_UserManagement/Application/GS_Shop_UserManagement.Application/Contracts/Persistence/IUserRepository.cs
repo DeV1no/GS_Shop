@@ -8,6 +8,4 @@ public interface IUserRepository : IGenericRepository<User>
     Task<User> GetUserByUserAndPassword(string password, string userName);
     Task<int> RegisterUser(User user, string password);
     Task<bool> Delete(int id);
-
-    
 }
