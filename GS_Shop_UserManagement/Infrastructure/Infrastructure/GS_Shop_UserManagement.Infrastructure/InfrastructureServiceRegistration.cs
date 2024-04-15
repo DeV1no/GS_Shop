@@ -43,9 +43,9 @@ public static class InfrastructureServiceRegistration
 
         // Add Hangfire server
         services.AddHangfireServer();
-
+       
         return services;
     }
 
-    
+
 }

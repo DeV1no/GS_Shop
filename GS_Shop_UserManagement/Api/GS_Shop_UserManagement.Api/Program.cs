@@ -1,9 +1,21 @@
-using GS_Shop_UserManagement.Application;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using GS_Shop_UserManagement.Persistence;
-using Microsoft.OpenApi.Models;
 using GS_Shop_UserManagement.Infrastructure;
+using GS_Shop_UserManagement.Infrastructure.CustomHealthCheck;
 using GS_Shop_UserManagement.Infrastructure.Policy;
+using GS_Shop_UserManagement.Api.Controllers;
 using Hangfire;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using GS_Shop_UserManagement.Application;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +32,7 @@ builder.Configuration
 builder.Services.ConfigurePersistenceServices(builder.Configuration);
 builder.Services.ConfigureApplicationServices(builder.Configuration);
 builder.Services.ConfigureInfrastructureServices(builder.Configuration);
+
 var policyRequirements = AuthorizationPolicyLoader.LoadPolicies(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {
@@ -35,6 +48,14 @@ builder.Services.AddAuthorization(options =>
         });
     }
 });
+builder.Services.AddHttpClient();
+builder.Services.AddHealthChecks()
+    .AddCheck<ApiHealthCheck>(nameof(ApiHealthCheck))
+    .AddDbContextCheck<GSShopUserManagementDbContext>();
+builder.Services.AddHealthChecksUI(opt =>
+{
+    opt.AddHealthCheckEndpoint("HealthCheck Api", "/api/HealthCheckStatus");
+}).AddInMemoryStorage();
 
 var app = builder.Build();
 
@@ -53,6 +74,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseStaticFiles();
+app.MapHealthChecksUI(opt => opt.UIPath = "/dashboard");
+
+app.MapGet("/api/HealthCheckStatus", () =>
+{
+    var healthCheckService = app.Services.GetRequiredService<HealthCheckService>();
+    return healthCheckService.CheckHealthAsync();
+});
+
 
 app.Run();
 return;
