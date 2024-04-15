@@ -51,7 +51,7 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginResponseD
         };
         claims.AddRange(user.UserClaims.Select(userClaim => new Claim(userClaim.ClaimType, "true")));
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
-        claims.AddRange(user.UserClaimLimitations.Select(lClaim => new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds)));
+        claims.AddRange(user.UserClaimLimitations.Select(lClaim => new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds+","+lClaim.LimitationField)));
 
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);

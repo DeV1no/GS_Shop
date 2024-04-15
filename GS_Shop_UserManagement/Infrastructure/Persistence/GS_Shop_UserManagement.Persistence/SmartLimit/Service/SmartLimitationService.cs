@@ -21,6 +21,8 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         var limitationClaims = GetLimitationClaims(userClaims, entityName);
         if (limitationClaims is null)
             return entities;
+        var limitationField = GetLimitationFiled(limitationClaims);
+        limitationClaims = RemoveLastClaimParam(limitationClaims, limitationField);
         if (string.IsNullOrEmpty(entityName))
             throw new InvalidOperationException($"No limitation tag found for entity type {entityType.Name}.");
         var limitationClaimToIntList = limitationClaims.Value.Split(',')
@@ -28,7 +30,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
             .ToList();
         // Build expression for Id property
         var parameter = Expression.Parameter(typeof(TEntity), "entity");
-        var property = Expression.Property(parameter, "Id");
+        var property = Expression.Property(parameter, limitationField);
         // Compose the where clause dynamically
         var containsMethod = typeof(Enumerable).GetMethods()
             .Single(m => m.Name == "Contains" && m.GetParameters().Length == 2)
@@ -39,6 +41,20 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         // Apply the where clause
         var result = entities.Where(whereExpression);
         return result;
+    }
+
+    private string GetLimitationFiled(Claim? limitationClaims)
+    {
+        // Remove curly braces
+        var cleanClaims = limitationClaims!.Value.Trim('{', '}');
+
+        // Split the string by commas
+        var parts = cleanClaims.Split(',');
+
+        // Access the last element
+        var lastParameter = parts[^1].Trim(); // Using index from end operator and trimming any whitespace
+        return lastParameter;
+
     }
 
     public async Task<TEntity> UpdateLimitationAsync(TEntity entity)
@@ -110,4 +126,18 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         }
         return (int)property.GetValue(entity)!;
     }
+
+    private Claim RemoveLastClaimParam(Claim limitationClaims, string limitationField)
+    {
+        var claimValue = limitationClaims.Value;
+        var parts = claimValue.Split(',');
+        claimValue = string.Join(",", parts.Take(parts.Length - 1));
+
+        // Create a new Claim object with the updated value
+        var updatedClaim = new Claim(limitationClaims.Type, claimValue, limitationClaims.ValueType, limitationClaims.Issuer);
+
+        return updatedClaim;
+    }
+
+
 }
