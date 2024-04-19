@@ -1,0 +1,6 @@
+@GS_Shop.Home_HostAddress = http://localhost:5298
+
+GET {{GS_Shop.Home_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

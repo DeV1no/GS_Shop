@@ -33,14 +33,14 @@ public static class InfrastructureServiceRegistration
                     Prefix = "hangfire:",
                     CheckConnection = true,
                     CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
-
+        
                     MigrationOptions = new MongoMigrationOptions
                     {
                         MigrationStrategy = new DropMongoMigrationStrategy(),
                         BackupStrategy = new CollectionMongoBackupStrategy()
                     }
                 }));
-
+        
         // Add Hangfire server
         services.AddHangfireServer();
        

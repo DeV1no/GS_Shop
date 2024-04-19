@@ -1,21 +1,13 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
+using EventBus.Messages.Common;
+using GS_Shop_UserManagement.Api.EventBusConsumer;
 using GS_Shop_UserManagement.Persistence;
-using GS_Shop_UserManagement.Infrastructure;
 using GS_Shop_UserManagement.Infrastructure.CustomHealthCheck;
 using GS_Shop_UserManagement.Infrastructure.Policy;
-using GS_Shop_UserManagement.Api.Controllers;
 using Hangfire;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using GS_Shop_UserManagement.Application;
 using Microsoft.OpenApi.Models;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +25,20 @@ builder.Services.ConfigurePersistenceServices(builder.Configuration);
 builder.Services.ConfigureApplicationServices(builder.Configuration);
 builder.Services.ConfigureInfrastructureServices(builder.Configuration);
 
+builder.Services.AddMassTransit(cfg =>
+{
+    cfg.AddConsumer<LoginConsumer>();
+    cfg.UsingRabbitMq((ctx, conf) =>
+    {
+        conf.Host("amqp://guest:guest@localhost:5672");
+        conf.ReceiveEndpoint(EventBusConstants.LoginQueue, c =>
+        {
+            c.ConfigureConsumer<LoginConsumer>(ctx);
+        });
+    });
+});
+builder.Services.AddMassTransitHostedService();
+builder.Services.AddScoped<LoginConsumer>();
 var policyRequirements = AuthorizationPolicyLoader.LoadPolicies(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {
