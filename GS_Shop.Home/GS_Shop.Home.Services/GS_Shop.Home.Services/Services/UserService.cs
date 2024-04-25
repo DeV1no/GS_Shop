@@ -19,7 +19,7 @@ public class UserService : IUserService
 
     private readonly JwtSettings _jwtSettings;
 
-    public UserService(IRequestClient<LoginEvent> requestClient,IOptions< JwtSettings> jwtSettings)
+    public UserService(IRequestClient<LoginEvent> requestClient, IOptions<JwtSettings> jwtSettings)
     {
         _requestClient = requestClient;
         _jwtSettings = jwtSettings.Value;
@@ -38,7 +38,9 @@ public class UserService : IUserService
             UserName = response.Message.UserName!,
             Email = response.Message.Email!,
             Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-            ExpiresAt = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes)
+            ExpiresAt = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes),
+            UserClaim = response.Message.Claim,
+            UserClaimLimitation = response.Message.ClaimLimitation
         };
     }
 
@@ -51,10 +53,10 @@ public class UserService : IUserService
             new(ClaimTypes.Email, user.Email!),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
-        //   claims.AddRange(user.UserClaims.Select(userClaim => new Claim(userClaim.ClaimType, "true")));
-        //  claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
-        // claims.AddRange(user.UserClaimLimitations.Select(lClaim =>
-        //    new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds + "," + lClaim.LimitationField)));var
+        claims.AddRange(user.Claim.Select(userClaim => new Claim(userClaim.ClaimType, "true")));
+        // claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
+        claims.AddRange(user.ClaimLimitation.Select(lClaim =>
+            new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds + "," + lClaim.LimitationField)));
 
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
