@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using EventBus.Messages.Events;
+using GS_Shop.Home.Services.IServices;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,34 +11,20 @@ namespace GS_Shop.Home.Controllers
     public class UserController : ControllerBase
     {
         private readonly IRequestClient<LoginEvent> _requestClient;
+        private readonly IUserService _service;
 
-        public UserController(IRequestClient<LoginEvent> requestClient)
+        public UserController(IRequestClient<LoginEvent> requestClient, IUserService service)
         {
             _requestClient = requestClient;
+            _service = service;
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(LoginResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(LoginResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginEvent login)
         {
-            try
-            {
-                var response = await _requestClient.GetResponse<LoginResponse>(login);
-
-                // Return the response from the consumer service to the client
-                return Ok(response.Message);
-            }
-            catch (RequestTimeoutException)
-            {
-                // Handle request timeout
-                return BadRequest("Request timeout occurred.");
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return BadRequest("Failed to process login: " + ex.Message);
-            }
+            return Ok(await _service.Login(login));
         }
     }
 }

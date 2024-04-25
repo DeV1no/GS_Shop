@@ -1,3 +1,4 @@
+using GS_Shop.Home.Services;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ builder.Services.AddMassTransit(cfg =>
         conf.Host("amqp://guest:guest@localhost:5672");
     });
 });
+builder.Services.ConfigureServices(builder.Configuration);
+
 builder.Services.AddMassTransitHostedService();
 var app = builder.Build();
 

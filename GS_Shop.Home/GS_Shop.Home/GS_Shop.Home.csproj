@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
+    <ProjectReference Include="..\GS_Shop.Home.Services\GS_Shop.Home.Services\GS_Shop.Home.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

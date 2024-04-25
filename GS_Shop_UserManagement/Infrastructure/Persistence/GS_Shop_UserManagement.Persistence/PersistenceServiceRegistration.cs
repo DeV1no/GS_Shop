@@ -21,8 +21,10 @@ public static class PersistenceServiceRegistration
 
         services.AddDbContext<GSShopUserManagementDbContext>(opt =>
         {
-            opt.UseSqlServer(configuration.GetConnectionString("UserManagementConnectionString"));
+            opt.UseMySql(configuration.GetConnectionString("UserManagementConnectionString"),
+                new MySqlServerVersion(new Version(8, 0, 23))); // Specify the MySQL server version
         });
+
 
         services.AddIdentity<User, Role>(options =>
             {

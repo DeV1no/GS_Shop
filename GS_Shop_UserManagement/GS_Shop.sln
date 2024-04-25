@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Messages", "..\Bui
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop.Home", "..\GS_Shop.Home\GS_Shop.Home\GS_Shop.Home.csproj", "{9DD479C0-152D-48CF-807D-136550309545}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop.Home.Services", "..\GS_Shop.Home\GS_Shop.Home.Services\GS_Shop.Home.Services\GS_Shop.Home.Services.csproj", "{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{9DD479C0-152D-48CF-807D-136550309545}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DD479C0-152D-48CF-807D-136550309545}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DD479C0-152D-48CF-807D-136550309545}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{F2E22EFE-85D2-4E4C-BA98-2FDBC45F019F} = {748EA905-99D3-4FC7-9CE4-51F733C6CA0A}
 		{73628BC0-5F73-4D10-8B4A-35CE0202E552} = {9C81C9EA-5DB0-492E-9130-EFA9E15A3F14}
 		{9DD479C0-152D-48CF-807D-136550309545} = {0B7D25A4-C66B-496D-A27D-32F046D49DF5}
+		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF} = {0B7D25A4-C66B-496D-A27D-32F046D49DF5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA2C8440-7E2F-4CC0-BA5F-AFD47D9C8C34}
