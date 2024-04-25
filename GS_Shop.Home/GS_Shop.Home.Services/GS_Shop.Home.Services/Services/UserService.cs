@@ -42,7 +42,7 @@ public class UserService : IUserService
             UserClaim = response.Message.Claim,
             UserClaimLimitation = response.Message.ClaimLimitation
         };
-    }
+    } 
 
 
     private JwtSecurityToken GenerateToken(LoginResponse user)
