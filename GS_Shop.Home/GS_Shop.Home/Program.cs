@@ -17,9 +17,12 @@ builder.Services.AddMassTransit(cfg =>
         conf.Host("amqp://guest:guest@localhost:5672");
     });
 });
+builder.Services.AddStackExchangeRedisCache(opt =>
+    opt.Configuration = builder.Configuration.GetValue<string>("CacheSettings:ConnectionString")
+);
 builder.Services.ConfigureServices(builder.Configuration);
-
 builder.Services.AddMassTransitHostedService();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

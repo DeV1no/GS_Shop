@@ -2,6 +2,7 @@
 using System.Text;
 using GS_Shop.Home.Services.DTOs.User;
 using GS_Shop.Home.Services.IServices;
+using GS_Shop.Home.Services.Mapper;
 using GS_Shop.Home.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,8 @@ public static class ServiceRegistration
         IConfiguration configuration)
     {
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IShopService, ShopService>();
+        services.AddAutoMapper(typeof(ShopMappings));
         var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
