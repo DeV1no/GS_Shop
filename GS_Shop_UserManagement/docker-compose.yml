@@ -6,13 +6,20 @@ services:
     build:
       context: .
       dockerfile: Api/GS_Shop_UserManagement.Api/Dockerfile
-  sql-server:
-    image: mcr.microsoft.com/mssql/server
+      
+  mariadb:
+    image: mariadb
+    restart: always
     environment:
-      SA_PASSWORD: Admin123
-      ACCEPT_EULA: Y
+      MYSQL_ROOT_PASSWORD: "Y1234"
+      MYSQL_DATABASE: "Maria"
+      MYSQL_USER: "Maria"
+      MYSQL_PASSWORD: "Y1234"
     ports:
-      - "1433:1433"
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      
   mongodb:
     image: mongo
     restart: always
@@ -25,3 +32,4 @@ services:
 
 volumes:
   mongo_data:
+  mariadb_data:
