@@ -1,0 +1,22 @@
+{
+  "AuthorizationPolicies": [
+    {
+      "PolicyName": "GetShopListPolicy",
+      "RequiredClaims": [
+        "GetShopList"
+      ]
+    },
+    {
+      "PolicyName": "AddShopListPolicy",
+      "RequiredClaims": [
+        "AddShop"
+      ]
+    },
+    {
+      "PolicyName": "GetShopPolicy",
+      "RequiredClaims": [
+        "GetShop"
+      ]
+    }
+  ]
+}

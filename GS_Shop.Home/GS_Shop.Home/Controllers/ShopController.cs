@@ -1,5 +1,6 @@
 using GS_Shop.Home.Services.DTOs.Shop;
 using GS_Shop.Home.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GS_Shop.Home.Controllers;
@@ -16,6 +17,7 @@ public class ShopController : ControllerBase
     }
 
     [HttpGet("{name}")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetShopPolicy")]
     public async Task<IActionResult> GetShopByName(string name)
     {
         var shop = await _service.GetShopDetail(name);
