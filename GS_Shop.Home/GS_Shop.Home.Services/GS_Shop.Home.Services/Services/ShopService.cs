@@ -1,6 +1,7 @@
 using AutoMapper;
 using GS_Shop.Home.Core.Entities;
 using GS_Shop.Home.Services.DTOs.Shop;
+using GS_Shop.Home.Services.Helper.SmartLimit;
 using GS_Shop.Home.Services.IServices;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
@@ -23,7 +24,8 @@ public class ShopService:IShopService
 
     public async Task<ShopDetailDto?> GetShopDetail(string name)
     {
-        var shop =await _redisCache.GetStringAsync(name);
+       var shop =await _redisCache.GetStringAsync(name);
+      // var shop = await _smartLimit.GetStringAsync(name);
         return shop == null ? null : JsonConvert.DeserializeObject<ShopDetailDto>(shop);
     }
 

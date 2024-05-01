@@ -1,6 +1,7 @@
 
 using System.Text;
 using GS_Shop.Home.Services.DTOs.User;
+using GS_Shop.Home.Services.Helper.SmartLimit;
 using GS_Shop.Home.Services.IServices;
 using GS_Shop.Home.Services.Mapper;
 using GS_Shop.Home.Services.Services;
@@ -18,6 +19,7 @@ public static class ServiceRegistration
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IShopService, ShopService>();
+        //services.AddScoped(typeof(ISmartLimitService<>), typeof(SmartLimitService<>));
         services.AddAutoMapper(typeof(ShopMappings));
         var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

@@ -28,6 +28,17 @@ services:
     
   rabbitmq: 
     image: rabbitmq:3-management-alpine
+  minio: 
+    image: minio/minio 
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: MinioDemo@123
+    volumes:
+      - "/Users/dev1/RiderProjects/GS_Shop/GS_Shop_UserManagement/Api/GS_Shop_UserManagement.Api/wwwroot"
+    command: server /data --console-address ":9001"
 
 volumes:
   mongo_data:

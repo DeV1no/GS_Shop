@@ -81,13 +81,11 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseStaticFiles();
 app.MapHealthChecksUI(opt => opt.UIPath = "/dashboard");
-
 app.MapGet("/api/HealthCheckStatus", () =>
 {
     var healthCheckService = app.Services.GetRequiredService<HealthCheckService>();
     return healthCheckService.CheckHealthAsync();
 });
-
 
 app.Run();
 return;

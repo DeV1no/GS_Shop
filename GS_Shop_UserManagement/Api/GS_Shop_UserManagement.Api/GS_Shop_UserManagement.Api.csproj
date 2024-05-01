@@ -35,6 +35,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="EventBusConsumer\" />
+	  <Folder Include="wwwroot\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\GS_Shop_UserManagement.Domain.Entities.User\f317e713-7a39-4b23-917d-c5e317a2ff7d.jpg" />
 	</ItemGroup>
 
 </Project>
