@@ -10,5 +10,6 @@ public class UpdateUserDto
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public IFormFile? ProfilePic { get; set; }
+    public string? PreviousFilePath { get; set; }
 
 }

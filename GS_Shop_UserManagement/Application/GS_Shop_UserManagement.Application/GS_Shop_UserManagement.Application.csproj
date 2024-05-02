@@ -7,8 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Constants\" />
-		<Folder Include="Constants\" />
 		<Folder Include="DTOs\FileManager\" />
 	</ItemGroup>
 

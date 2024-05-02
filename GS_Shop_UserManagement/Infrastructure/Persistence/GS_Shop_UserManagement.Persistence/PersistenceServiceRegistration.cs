@@ -1,8 +1,7 @@
 ﻿using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Domain.Entities;
 using GS_Shop_UserManagement.Persistence.FileManager.Services;
-using GS_Shop_UserManagement.Persistence.Minio.Implementations;
-using GS_Shop_UserManagement.Persistence.Minio.Interfaces;
+using GS_Shop_UserManagement.Persistence.Minio;
 using GS_Shop_UserManagement.Persistence.Repositories;
 using GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +28,7 @@ public static class PersistenceServiceRegistration
                 .WithEndpoint("localhost:9000")
                 .WithSSL(false);
         });
-        services.AddScoped<IStorageService, StorageService>();
+        services.AddScoped(typeof(IUploadStorageService<>), typeof(UploadStorageService<>));
         services.AddDbContext<GSShopUserManagementDbContext>(opt =>
         {
             opt.UseMySql(configuration.GetConnectionString("UserManagementConnectionString"),
@@ -48,7 +47,7 @@ public static class PersistenceServiceRegistration
             })
             .AddEntityFrameworkStores<GSShopUserManagementDbContext>()
             .AddDefaultTokenProviders();
-
+        services.AddScoped<IDownloadStorageService, DownloadStorageService>();
         return services;
     }
 }

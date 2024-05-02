@@ -1,12 +1,12 @@
-﻿using System.Globalization;
-using AutoMapper;
+﻿using AutoMapper;
 using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Application.Features.User.Requests.Commands;
 using MediatR;
 
 namespace GS_Shop_UserManagement.Application.Features.User.Handlers.Commands;
 
-public class UpdateUserHandler(IUserRepository repository, IMapper mapper, IFileService<Domain.Entities.User> fileService) : IRequestHandler<UpdateUserCommand, int>
+public class UpdateUserHandler(IUserRepository repository, IMapper mapper, 
+    IUploadStorageService<Domain.Entities.User> uploadStorageService) : IRequestHandler<UpdateUserCommand, int>
 {
     public async Task<int> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
@@ -15,11 +15,10 @@ public class UpdateUserHandler(IUserRepository repository, IMapper mapper, IFile
 
         if (request.UpdateUserDto.ProfilePic != null)
         {
-            var profilePictureDetail = await fileService.PostFileAsync(request.UpdateUserDto.ProfilePic, user.ProfilePictureId);
-            user.ProfilePictureId = profilePictureDetail.Item1;
-            user.ProfilePicturePath = profilePictureDetail.Item2;
+           // var profilePictureDetail = await fileService.PostFileAsync(request.UpdateUserDto.ProfilePic, user.ProfilePictureId);
+            var profilePictureDetail = await uploadStorageService.UploadFileAsync(request.UpdateUserDto.ProfilePic,request.UpdateUserDto.PreviousFilePath, cancellationToken);
+            user.ProfilePicturePath = profilePictureDetail;
         }
-
         await repository.Update(user);
         return user.Id;
     }
