@@ -13,8 +13,7 @@ public class DownloadStorageService(IMinioClient minioClient,IHttpContextAccesso
         CancellationToken cancellationToken = default)
     {
         var separatedPath = BucketPathSeparator.Separat(downloadLink);
-        var claimChecker=  new UserClaimChecker(httpContextAccessor,"Get"+separatedPath.Item1);
-        var check = claimChecker.Check();
+        PermissionChecker(separatedPath);
         var downloadLinkArgs = new PresignedGetObjectArgs()
             .WithBucket(separatedPath.Item1)
             .WithObject(separatedPath.Item2)
@@ -25,17 +24,16 @@ public class DownloadStorageService(IMinioClient minioClient,IHttpContextAccesso
         {
             return presignedUrl;
         }
-
         var downloadLinkRequest = await minioClient.PresignedGetObjectAsync(downloadLinkArgs);
         return downloadLinkRequest;
     }
 
-    private static string Bucket(string downloadLink, out string fileName)
+    private void PermissionChecker(Tuple<string, string> separatedPath)
     {
-        var parts = downloadLink.Split('/');
-        var bucket = parts[0];
-        fileName = Path.GetFileName(downloadLink);
-        return bucket;
+        var claimChecker=  new UserClaimChecker(httpContextAccessor,"Get"+separatedPath.Item1);
+        var check = claimChecker.Check();
+        if (!check)
+            throw new Exception("BZN b Chak");
     }
 
     private bool IsImageUrl(string url)

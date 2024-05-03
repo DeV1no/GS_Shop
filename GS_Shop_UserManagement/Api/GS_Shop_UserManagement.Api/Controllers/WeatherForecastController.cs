@@ -28,7 +28,7 @@ namespace GS_Shop_UserManagement.Api.Controllers
 
 
         [HttpGet("DownloadMinioFile")]
-        [Authorize(AuthenticationSchemes = "Bearer", Policy = "UpdateUserPolicy")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult> DownloadMinioFile(string downloadLink)
         {
             var fileName = await _storageService.GetObjectDownloadLink(downloadLink);
