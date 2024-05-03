@@ -13,6 +13,12 @@
       ]
     },
     {
+      "PolicyName": "GetUserPolicy",
+      "RequiredClaims": [
+        "GetUser"
+      ]
+    },
+    {
       "PolicyName": "UpdateUserPolicy",
       "RequiredClaims": [
         "UpdateUser"

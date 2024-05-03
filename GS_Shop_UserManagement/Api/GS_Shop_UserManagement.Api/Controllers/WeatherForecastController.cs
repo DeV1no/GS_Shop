@@ -12,7 +12,9 @@ namespace GS_Shop_UserManagement.Api.Controllers
         private readonly IFileService<User> _uploadService;
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IDownloadStorageService _storageService;
-        public WeatherForecastController(IFileService<User> uploadService, ILogger<WeatherForecastController> logger, IDownloadStorageService storageService)
+
+        public WeatherForecastController(IFileService<User> uploadService, ILogger<WeatherForecastController> logger,
+            IDownloadStorageService storageService)
         {
             _uploadService = uploadService;
             _logger = logger;
@@ -25,18 +27,15 @@ namespace GS_Shop_UserManagement.Api.Controllers
         };
 
 
-        
-
-
         [HttpGet("DownloadMinioFile")]
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "UpdateUserPolicy")]
         public async Task<ActionResult> DownloadMinioFile(string downloadLink)
         {
-                var fileName = await _storageService.GetObjectDownloadLink(downloadLink);
-                return Ok(fileName);
+            var fileName = await _storageService.GetObjectDownloadLink(downloadLink);
+            return Ok(fileName);
         }
 
 
-        
         [HttpGet(Name = "GetWeatherForecast")]
         [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetWeatherForecastPolicy")]
         public IEnumerable<WeatherForecast> Get()
