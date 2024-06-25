@@ -34,7 +34,6 @@
 		<InternalsVisibleTo Include="GS_Shop_UserManagement_Integration_Test" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="EventBusConsumer\" />
 	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 	<ItemGroup>

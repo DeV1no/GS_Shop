@@ -8,4 +8,5 @@ namespace GS_Shop.Home.Services.IServices;
 public interface IUserService
 {
     public Task<LoginResponseDto> Login(LoginEvent login);
+    public Task<RegisterResponse> Register(RegisterEvent register);
 }

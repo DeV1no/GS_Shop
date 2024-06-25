@@ -37,8 +37,10 @@ namespace GS_Shop_UserManagement.Application
                         ValidateAudience = true,
                         ValidAudience = jwtSettings.Audience,
                         ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero // No clock skew
+                        ClockSkew = TimeSpan.Zero, // No clock skew
+                        
                     };
+                   // options.TokenHandlers;
                 });
 
             return services;

@@ -1,10 +1,7 @@
 using EventBus.Messages.Events;
-using GS_Shop.Home.Services.DTOs;
 using GS_Shop.Home.Services.DTOs.User;
 using GS_Shop.Home.Services.IServices;
 using MassTransit;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,12 +13,13 @@ namespace GS_Shop.Home.Services.Services;
 public class UserService : IUserService
 {
     private readonly IRequestClient<LoginEvent> _requestClient;
-
+    private readonly IRequestClient<RegisterEvent> _registerRequestClient;
     private readonly JwtSettings _jwtSettings;
 
-    public UserService(IRequestClient<LoginEvent> requestClient, IOptions<JwtSettings> jwtSettings)
+    public UserService(IRequestClient<LoginEvent> requestClient, IOptions<JwtSettings> jwtSettings, IRequestClient<RegisterEvent> registerRequestClient)
     {
         _requestClient = requestClient;
+        _registerRequestClient = registerRequestClient;
         _jwtSettings = jwtSettings.Value;
     }
 
@@ -42,7 +40,15 @@ public class UserService : IUserService
             UserClaim = response.Message.Claim,
             UserClaimLimitation = response.Message.ClaimLimitation
         };
-    } 
+    }
+
+    public async Task<RegisterResponse> Register(RegisterEvent register)
+    {
+        var response = await _registerRequestClient.GetResponse<RegisterResponse>(register);
+        if (response is null)
+            throw new Exception();
+        return response.Message;
+    }
 
 
     private JwtSecurityToken GenerateToken(LoginResponse user)

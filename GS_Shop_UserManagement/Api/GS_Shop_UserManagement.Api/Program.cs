@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EventBus.Messages.Common;
 using GS_Shop_UserManagement.Api.EventBusConsumer;
 using GS_Shop_UserManagement.Persistence;
@@ -6,8 +7,12 @@ using GS_Shop_UserManagement.Infrastructure.Policy;
 using Hangfire;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using GS_Shop_UserManagement.Application;
+using GS_Shop_UserManagement.Infrastructure;
+using GS_Shop_UserManagement.Infrastructure.Auth;
 using Microsoft.OpenApi.Models;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +33,12 @@ builder.Services.ConfigureInfrastructureServices(builder.Configuration);
 builder.Services.AddMassTransit(cfg =>
 {
     cfg.AddConsumer<LoginConsumer>();
+    cfg.AddConsumer<RegisterConsumer>();
     cfg.UsingRabbitMq((ctx, conf) =>
     {
         conf.Host("amqp://guest:guest@localhost:5672");
-        conf.ReceiveEndpoint(EventBusConstants.LoginQueue, c =>
-        {
-            c.ConfigureConsumer<LoginConsumer>(ctx);
-        });
+        conf.ReceiveEndpoint(EventBusConstants.LoginQueue, c => { c.ConfigureConsumer<LoginConsumer>(ctx); });
+        conf.ReceiveEndpoint(EventBusConstants.RegisterQueue, c => { c.ConfigureConsumer<RegisterConsumer>(ctx); });
     });
 });
 builder.Services.AddMassTransitHostedService();
@@ -50,23 +54,47 @@ builder.Services.AddAuthorization(options =>
             foreach (var claim in requiredClaims)
             {
                 policy.RequireClaim(claim);
+                policy.Requirements.Add(new RedisAuthorizationRequirement());
             }
+
+
+            // Add RedisClaimsRequirement
+            // Or initialize it with appropriate permissions
+
+
+            // Combine requirements into a single requirement
         });
     }
 });
+
+var policyConfiguration = PolicyConfigurationReader.ReadPolicyConfiguration("./policyRequirements.json");
+
+// Add authorization policies
+
+
 builder.Services.AddHttpClient();
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>(nameof(ApiHealthCheck))
     .AddDbContextCheck<GSShopUserManagementDbContext>();
-builder.Services.AddHealthChecksUI(opt =>
+builder.Services.AddHealthChecksUI(opt => { opt.AddHealthCheckEndpoint("HealthCheck Api", "/api/HealthCheckStatus"); })
+    .AddInMemoryStorage();
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    opt.AddHealthCheckEndpoint("HealthCheck Api", "/api/HealthCheckStatus");
-}).AddInMemoryStorage();
+    var redisConnectionString = builder.Configuration
+        .GetValue<string>("CacheSettings:ConnectionString")!;
+    options.Configuration = $"{redisConnectionString},defaultDatabase=1";
+});
+
+//services.AddSingleton<ConnectionMultiplexer>(provider =>
+//{
+//    var configuration = ConfigurationOptions.Parse(Configuration["Redis:ConnectionString"]);
+//   return ConnectionMultiplexer.Connect(configuration);
+//});
+builder.Services.AddSingleton<IAuthorizationHandler, RedisAuthorizationHandler>();
 
 var app = builder.Build();
 
-app.UseHangfireDashboard()
-    .UseHangfireServer();
+app.UseHangfireDashboard().UseHangfireServer();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -126,4 +154,24 @@ void AddSwagger(IServiceCollection services)
             Title = "User Api"
         });
     });
+}
+
+public class PolicyConfiguration
+{
+    public List<PolicyItem> AuthorizationPolicies { get; set; }
+}
+
+public class PolicyItem
+{
+    public string PolicyName { get; set; }
+    public List<string> RequiredClaims { get; set; }
+}
+
+public static class PolicyConfigurationReader
+{
+    public static PolicyConfiguration ReadPolicyConfiguration(string filePath)
+    {
+        var json = File.ReadAllText(filePath);
+        return JsonConvert.DeserializeObject<PolicyConfiguration>(json);
+    }
 }

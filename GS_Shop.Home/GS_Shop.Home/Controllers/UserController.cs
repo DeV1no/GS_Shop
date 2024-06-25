@@ -10,12 +10,10 @@ namespace GS_Shop.Home.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IRequestClient<LoginEvent> _requestClient;
         private readonly IUserService _service;
 
-        public UserController(IRequestClient<LoginEvent> requestClient, IUserService service)
+        public UserController( IUserService service)
         {
-            _requestClient = requestClient;
             _service = service;
         }
 
@@ -25,6 +23,15 @@ namespace GS_Shop.Home.Controllers
         public async Task<IActionResult> Login([FromBody] LoginEvent login)
         {
             return Ok(await _service.Login(login));
+        }
+        
+        
+        [HttpPost("Register")]
+        [ProducesResponseType(typeof(RegisterEvent), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Register([FromBody] RegisterEvent register)
+        {
+            return Ok(await _service.Register(register));
         }
     }
 }

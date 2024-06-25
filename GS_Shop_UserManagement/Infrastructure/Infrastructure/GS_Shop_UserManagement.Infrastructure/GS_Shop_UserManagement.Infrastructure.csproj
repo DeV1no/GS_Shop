@@ -19,6 +19,7 @@
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.3" />
 		<PackageReference Include="MongoDB.Driver" Version="2.24.0" />
+		<PackageReference Include="StackExchange.Redis" Version="2.7.33" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -13,7 +13,7 @@ public class DownloadStorageService(IMinioClient minioClient,IHttpContextAccesso
         CancellationToken cancellationToken = default)
     {
         var separatedPath = BucketPathSeparator.Separat(downloadLink);
-        PermissionChecker(separatedPath);
+      //  PermissionChecker(separatedPath);
         var downloadLinkArgs = new PresignedGetObjectArgs()
             .WithBucket(separatedPath.Item1)
             .WithObject(separatedPath.Item2)

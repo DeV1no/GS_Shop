@@ -1,3 +1,4 @@
+using GS_Shop_UserManagement.Application.Attributes;
 using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -28,16 +29,21 @@ namespace GS_Shop_UserManagement.Api.Controllers
 
 
         [HttpGet("DownloadMinioFile")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        //   [Auth("GetUserPolicy")]
         public async Task<ActionResult> DownloadMinioFile(string downloadLink)
         {
+            foreach (var claim in HttpContext.User.Claims)
+            {
+                _logger.LogInformation($"Claim Type: {claim.Type}, Value: {claim.Value}");
+            }
+
             var fileName = await _storageService.GetObjectDownloadLink(downloadLink);
             return Ok(fileName);
         }
 
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetWeatherForecastPolicy")]
+        [Auth("GetWeatherForecastPolicy")]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
