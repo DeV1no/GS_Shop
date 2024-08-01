@@ -12,9 +12,13 @@ namespace GS_Shop_UserManagement.Infrastructure.Policy
             var policies = new Dictionary<string, List<string>>();
 
             if (policyConfig == null) return policies;
+
             foreach (var policy in policyConfig)
             {
-                policies[policy.PolicyName] = policy.RequiredClaims;
+                if (!string.IsNullOrEmpty(policy.PolicyName) && policy.RequiredClaims != null)
+                {
+                    policies[policy.PolicyName] = policy.RequiredClaims;
+                }
             }
 
             return policies;
@@ -24,6 +28,7 @@ namespace GS_Shop_UserManagement.Infrastructure.Policy
     public class PolicyConfiguration
     {
         public string PolicyName { get; set; } = string.Empty;
-        public List<string> RequiredClaims { get; set; } = [];
+        public List<string> RequiredClaims { get; set; } = new List<string>();
     }
+
 }

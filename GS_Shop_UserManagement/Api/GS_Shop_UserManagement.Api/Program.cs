@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using EventBus.Messages.Common;
 using GS_Shop_UserManagement.Api.EventBusConsumer;
 using GS_Shop_UserManagement.Persistence;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using GS_Shop_UserManagement.Application;
 using GS_Shop_UserManagement.Infrastructure;
 using GS_Shop_UserManagement.Infrastructure.Auth;
+using GS_Shop_UserManagement.Infrastructure.Helpers;
 using Microsoft.OpenApi.Models;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +17,14 @@ using Newtonsoft.Json;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 AddSwagger(builder.Services);
+
 builder.Configuration
     .AddJsonFile("policyRequirements.json", optional: true, reloadOnChange: true)
     .AddJsonFile("limitationClaims.json", optional: true, reloadOnChange: true);
+
 builder.Services.ConfigurePersistenceServices(builder.Configuration);
 builder.Services.ConfigureApplicationServices(builder.Configuration);
 builder.Services.ConfigureInfrastructureServices(builder.Configuration);
@@ -43,6 +42,9 @@ builder.Services.AddMassTransit(cfg =>
 });
 builder.Services.AddMassTransitHostedService();
 builder.Services.AddScoped<LoginConsumer>();
+
+builder.Services.AddHttpContextAccessor(); // Ensure IHttpContextAccessor is registered
+
 var policyRequirements = AuthorizationPolicyLoader.LoadPolicies(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {
@@ -56,20 +58,31 @@ builder.Services.AddAuthorization(options =>
                 policy.RequireClaim(claim);
                 policy.Requirements.Add(new RedisAuthorizationRequirement());
             }
-
-
-            // Add RedisClaimsRequirement
-            // Or initialize it with appropriate permissions
-
-
-            // Combine requirements into a single requirement
         });
     }
-});
+}); 
 
 var policyConfiguration = PolicyConfigurationReader.ReadPolicyConfiguration("./policyRequirements.json");
 
-// Add authorization policies
+
+/*builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    }); */
 
 
 builder.Services.AddHttpClient();
@@ -85,17 +98,17 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = $"{redisConnectionString},defaultDatabase=1";
 });
 
-//services.AddSingleton<ConnectionMultiplexer>(provider =>
-//{
-//    var configuration = ConfigurationOptions.Parse(Configuration["Redis:ConnectionString"]);
-//   return ConnectionMultiplexer.Connect(configuration);
-//});
 builder.Services.AddSingleton<IAuthorizationHandler, RedisAuthorizationHandler>();
+
+
 
 var app = builder.Build();
 
+// Set the ServiceProvider
+ServiceLocator.ServiceProvider = app.Services;
+
 app.UseHangfireDashboard().UseHangfireServer();
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -106,17 +119,22 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.UseStaticFiles();
 app.MapHealthChecksUI(opt => opt.UIPath = "/dashboard");
-app.MapGet("/api/HealthCheckStatus", () =>
+
+app.MapGet("/api/HealthCheckStatus", async context =>
 {
     var healthCheckService = app.Services.GetRequiredService<HealthCheckService>();
-    return healthCheckService.CheckHealthAsync();
+    var report = await healthCheckService.CheckHealthAsync();
+    var result = JsonConvert.SerializeObject(report);
+
+    context.Response.ContentType = "application/json";
+    await context.Response.WriteAsync(result);
 });
 
 app.Run();
-return;
 
 void AddSwagger(IServiceCollection services)
 {

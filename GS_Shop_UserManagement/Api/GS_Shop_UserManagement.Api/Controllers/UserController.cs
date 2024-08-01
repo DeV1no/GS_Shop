@@ -1,4 +1,5 @@
-﻿using GS_Shop_UserManagement.Application.DTOs.User;
+﻿using GS_Shop_UserManagement.Application.Attributes;
+using GS_Shop_UserManagement.Application.DTOs.User;
 using GS_Shop_UserManagement.Application.Features.User.Requests.Commands;
 using GS_Shop_UserManagement.Application.Features.User.Requests.Queries;
 using MediatR;
@@ -8,19 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace GS_Shop_UserManagement.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public UserController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    [Authorize(AuthenticationSchemes = "Bearer", Policy = "GetUserListPolicy")]
+    //[Authorize(AuthenticationSchemes = "Bearer", Policy = "GetUserListPolicy")]
+    [Auth("GetUserListPolicy")]
     [HttpGet("getAll")]
     public async Task<IActionResult> GetAll()
     {
-        var allocationList = await _mediator.Send(new GetAllUserRequest());
+        var allocationList = await mediator.Send(new GetAllUserRequest());
         return Ok(allocationList);
     }
 
@@ -28,7 +24,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
     {
         var command = new RegisterUserCommand { RegisterUserDto = dto };
-        var response = await _mediator.Send(command);
+        var response = await mediator.Send(command);
         return Ok(response);
     }
 
@@ -36,7 +32,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var command = new LoginUserCommand() { LoginDto = dto };
-        var response = await _mediator.Send(command);
+        var response = await mediator.Send(command);
         return Ok(response);
     }
 
@@ -45,7 +41,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> UpdateUser([FromForm] UpdateUserDto dto)
     {
         var command = new UpdateUserCommand { UpdateUserDto = dto };
-        var response = await _mediator.Send(command);
+        var response = await mediator.Send(command);
         return Ok(response);
     }
 
@@ -54,7 +50,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         var command = new DeleteUserCommand { Id = id };
-        var response = await _mediator.Send(command);
+        var response = await mediator.Send(command);
         return Ok(response);
     }
 }

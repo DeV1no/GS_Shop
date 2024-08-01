@@ -88,7 +88,8 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginResponseD
         claims.Add(
             new Claim("redisKey",randomKey)
         );
-        claims.AddRange(userPermissions);
+        //todo: connect auth system (smart limit and autt attr to redis key and get claim)
+       // claims.AddRange(userPermissions);
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
         var jwtSecurityToken = new JwtSecurityToken(

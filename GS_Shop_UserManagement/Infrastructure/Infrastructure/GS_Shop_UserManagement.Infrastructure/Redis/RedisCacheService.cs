@@ -17,6 +17,11 @@ public class RedisCacheService : IRedisCacheService
         return await _database.StringGetAsync(key);
     }
 
+    public string Get(string key)
+    {
+        return  _database.StringGet(key);
+    }
+
     public async Task SetAsync(string key, string value, TimeSpan expiry)
     {
         await _database.StringSetAsync(key, value, expiry);

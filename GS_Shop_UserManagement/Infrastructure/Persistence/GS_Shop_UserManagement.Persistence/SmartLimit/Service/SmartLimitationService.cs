@@ -1,28 +1,40 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using GS_Shop_UserManagement.Application.DTOs.RedisClaims;
+using GS_Shop_UserManagement.Infrastructure.Redis;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 
-public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbContext,
-        IHttpContextAccessor httpContextAccessor)
+public class SmartLimitationService<TEntity>(
+    GSShopUserManagementDbContext dbContext,
+    IHttpContextAccessor httpContextAccessor,
+    IRedisCacheService redisCacheService)
     : ISmartLimitationService<TEntity>
     where TEntity : class
 {
     public IQueryable<TEntity> GetLimitedEntitiesQueryAsync()
     {
         var entities = dbContext.Set<TEntity>();
-        var userClaims = httpContextAccessor.HttpContext?.User;
+
+        var user = httpContextAccessor.HttpContext?.User;
+        var redisKey = user.Claims.FirstOrDefault(x => x.Type == "redisKey")?.Value;
+
+        var redisData = redisCacheService.Get(redisKey);
+        var userClaims = JsonConvert.DeserializeObject<RedisClaims>(redisData);
+
+
         if (userClaims is null)
             return entities;
         var entityType = typeof(TEntity);
         var entityName = entityType.Name;
-        var limitationClaims = GetLimitationClaims(userClaims, entityName);
-        if (limitationClaims is null)
+        var limitationClaimsRedisType = GetLimitationClaims(userClaims, entityName);
+        if (limitationClaimsRedisType is null)
             return entities;
-        var limitationField = GetLimitationFiled(limitationClaims);
-        limitationClaims = RemoveLastClaimParam(limitationClaims, limitationField);
+        var limitationField = GetLimitationFiled(limitationClaimsRedisType);
+        var limitationClaims = RemoveLastClaimParam(limitationClaimsRedisType, limitationField);
         if (string.IsNullOrEmpty(entityName))
             throw new InvalidOperationException($"No limitation tag found for entity type {entityType.Name}.");
         var limitationClaimToIntList = limitationClaims.Value.Split(',')
@@ -43,7 +55,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         return result;
     }
 
-    private string GetLimitationFiled(Claim? limitationClaims)
+    private string GetLimitationFiled(Limitation limitationClaims)
     {
         // Remove curly braces
         var cleanClaims = limitationClaims!.Value.Trim('{', '}');
@@ -54,7 +66,6 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         // Access the last element
         var lastParameter = parts[^1].Trim(); // Using index from end operator and trimming any whitespace
         return lastParameter;
-
     }
 
     public async Task<TEntity> UpdateLimitationAsync(TEntity entity)
@@ -62,7 +73,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         var entityId = GetEntityId(entity);
 
         // Fetch the entities from the database
-        var limitedEntities = await GetLimitedEntitiesQueryAsync().ToListAsync();
+        var limitedEntities = GetLimitedEntitiesQueryAsync();
 
         // Check if the user has access to update the entity by its ID
         var isEntityExistOrAccessed = limitedEntities.Any(e => GetEntityId(e) == entityId);
@@ -101,10 +112,12 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
     }
 
 
-    private Claim? GetLimitationClaims(ClaimsPrincipal userClaims, string limitationTag)
+    private Limitation? GetLimitationClaims(RedisClaims userClaims, string limitationTag)
     {
         // Find all claims with a name ending with "Limitation" in the user's claims
-        return userClaims.Claims.FirstOrDefault(c => string.Equals(c.Type, limitationTag, StringComparison.CurrentCultureIgnoreCase));
+        // return userClaims.(c => string.Equals(c.Type, limitationTag, StringComparison.CurrentCultureIgnoreCase));        return userClaims.(c => string.Equals(c.Type, limitationTag, StringComparison.CurrentCultureIgnoreCase));
+        return userClaims.Limitations.FirstOrDefault(c =>
+            string.Equals(c.Type, limitationTag, StringComparison.CurrentCultureIgnoreCase));
     }
 
     private int GetEntityId(TEntity entity)
@@ -113,7 +126,7 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         var property = typeof(TEntity).GetProperty("Id");
         return property == null
             ? throw new InvalidOperationException("Entity must have an 'Id' property.")
-            : (int)property.GetValue(entity)!;
+            : (int) property.GetValue(entity)!;
     }
 
     private static int GetEntityDeleteId(TEntity entity)
@@ -124,20 +137,20 @@ public class SmartLimitationService<TEntity>(GSShopUserManagementDbContext dbCon
         {
             throw new InvalidOperationException("Entity must have an 'Id' property.");
         }
-        return (int)property.GetValue(entity)!;
+
+        return (int) property.GetValue(entity)!;
     }
 
-    private Claim RemoveLastClaimParam(Claim limitationClaims, string limitationField)
+    private Claim RemoveLastClaimParam(Limitation limitationClaims, string limitationField)
     {
         var claimValue = limitationClaims.Value;
         var parts = claimValue.Split(',');
         claimValue = string.Join(",", parts.Take(parts.Length - 1));
 
         // Create a new Claim object with the updated value
-        var updatedClaim = new Claim(limitationClaims.Type, claimValue, limitationClaims.ValueType, limitationClaims.Issuer);
+        var updatedClaim = new Claim(limitationClaims.Type, claimValue, limitationClaims.ValueType,
+            limitationClaims.Issuer);
 
         return updatedClaim;
     }
-
-
 }
