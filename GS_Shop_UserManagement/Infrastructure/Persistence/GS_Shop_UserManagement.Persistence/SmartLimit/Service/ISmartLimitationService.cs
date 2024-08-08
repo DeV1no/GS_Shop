@@ -1,4 +1,6 @@
-﻿namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
+﻿using GS_Shop_UserManagement.Domain.Entities;
+
+namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 
 public interface ISmartLimitationService<TEntity>
 {

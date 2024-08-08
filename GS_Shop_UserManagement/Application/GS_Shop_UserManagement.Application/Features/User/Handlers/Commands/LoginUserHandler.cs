@@ -65,7 +65,7 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginResponseD
         var userLimitation = user.UserClaimLimitations
             .Select(lClaim =>
                 new Claim(lClaim.ClaimLimitationValue,
-                    lClaim.LimitedIds + "," + lClaim.LimitationField));
+                    lClaim.LimitedIds + "," + lClaim.LimitationField+"$&" + lClaim.Action));
 
         var permissions = userPermissions as Claim[] ?? userPermissions.ToArray();
         var roles = userRoles as Claim[] ?? userRoles.ToArray();

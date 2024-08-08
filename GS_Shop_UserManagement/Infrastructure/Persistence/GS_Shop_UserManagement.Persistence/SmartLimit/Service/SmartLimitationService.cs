@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using GS_Shop_UserManagement.Application.DTOs.RedisClaims;
+using GS_Shop_UserManagement.Domain.Entities;
 using GS_Shop_UserManagement.Infrastructure.Redis;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace GS_Shop_UserManagement.Persistence.SmartLimit.Service;
 
-public class SmartLimitationService<TEntity>(
+internal class SmartLimitationService<TEntity>(
     GSShopUserManagementDbContext dbContext,
     IHttpContextAccessor httpContextAccessor,
     IRedisCacheService redisCacheService)
@@ -17,23 +18,95 @@ public class SmartLimitationService<TEntity>(
 {
     public IQueryable<TEntity> GetLimitedEntitiesQueryAsync()
     {
+        return LimitedEntitiesByActionQueryAsync(ClaimLimitationActionEnum.Get);
+    }
+
+    public async Task<TEntity> UpdateLimitationAsync(TEntity entity)
+    {
+        var entityId = GetEntityId(entity);
+
+        // Fetch the entities from the database
+        var limitedEntities = LimitedEntitiesByActionQueryAsync(ClaimLimitationActionEnum.Put);
+
+        // Check if the user has access to update the entity by its ID
+        var isEntityExistOrAccessed = limitedEntities.Any(e => GetEntityId(e) == entityId);
+
+        if (!isEntityExistOrAccessed)
+        {
+            throw new UnauthorizedAccessException("User does not have access to update this entity.");
+        }
+
+        // Proceed with the update operation
+        dbContext.Update(entity);
+        await dbContext.SaveChangesAsync();
+
+        return entity;
+    }
+
+    public async Task<TEntity> DeleteLimitationAsync(int id)
+    {
+        // Fetch the IDs of the entities that the user has access to
+        var entityIds = await LimitedEntitiesByActionQueryAsync(ClaimLimitationActionEnum.Delete)
+            .Select(e => GetEntityDeleteId(e))
+            .ToListAsync();
+
+        // Check if the given ID exists in the fetched entity IDs
+        if (!entityIds.Contains(id))
+        {
+            throw new UnauthorizedAccessException("User does not have access to delete this entity.");
+        }
+
+        var entity = await dbContext.Set<TEntity>().FindAsync(id)
+                     ?? throw new Exception("Entity not found.");
+        dbContext.Set<TEntity>().Remove(entity);
+        await dbContext.SaveChangesAsync();
+
+        return entity;
+    }
+
+
+    private IQueryable<TEntity> LimitedEntitiesByActionQueryAsync(ClaimLimitationActionEnum action)
+    {
+        //ClaimLimitationActionEnum? action= ClaimLimitationActionEnum.Get
+
         var entities = dbContext.Set<TEntity>();
 
         var user = httpContextAccessor.HttpContext?.User;
+        if (user is null)
+            throw new UnauthorizedAccessException();
         var redisKey = user.Claims.FirstOrDefault(x => x.Type == "redisKey")?.Value;
-
+        if (redisKey is null)
+            throw new UnauthorizedAccessException();
         var redisData = redisCacheService.Get(redisKey);
         var userClaims = JsonConvert.DeserializeObject<RedisClaims>(redisData);
-
-
         if (userClaims is null)
             return entities;
+        userClaims.Limitations = userClaims.Limitations.Where(x =>
+        {
+            var value = x.Value;
+            if (value.Contains("$&"))
+            {
+                // Split by the delimiter "$&"
+                var parts = value.Split(new string[] {"$&"}, StringSplitOptions.None);
+
+                // Check if the part after "$&" contains "Get"
+                return parts.Length > 1 && parts[1].Contains("Get");
+            }
+            else
+            {
+                // If there is no "$&" delimiter, include the claim
+                return true;
+            }
+        }).ToList();
         var entityType = typeof(TEntity);
         var entityName = entityType.Name;
         var limitationClaimsRedisType = GetLimitationClaims(userClaims, entityName);
         if (limitationClaimsRedisType is null)
             return entities;
         var limitationField = GetLimitationFiled(limitationClaimsRedisType);
+        var actionParameter = GetActionParameter(limitationClaimsRedisType);
+        if (!string.Equals(actionParameter, action.ToString(), StringComparison.CurrentCultureIgnoreCase))
+            return Enumerable.Empty<TEntity>().AsQueryable();
         var limitationClaims = RemoveLastClaimParam(limitationClaimsRedisType, limitationField);
         if (string.IsNullOrEmpty(entityName))
             throw new InvalidOperationException($"No limitation tag found for entity type {entityType.Name}.");
@@ -58,57 +131,37 @@ public class SmartLimitationService<TEntity>(
     private string GetLimitationFiled(Limitation limitationClaims)
     {
         // Remove curly braces
-        var cleanClaims = limitationClaims!.Value.Trim('{', '}');
+        var cleanClaims = limitationClaims.Value.Trim('{', '}');
 
         // Split the string by commas
         var parts = cleanClaims.Split(',');
 
         // Access the last element
         var lastParameter = parts[^1].Trim(); // Using index from end operator and trimming any whitespace
-        return lastParameter;
+
+        // Split the last parameter by the delimiter "$&"
+        var subParts = lastParameter.Split(new string[] {"$&"}, StringSplitOptions.None);
+
+        // Return the part before "$&", which is "Id"
+        return subParts[0].Trim();
     }
 
-    public async Task<TEntity> UpdateLimitationAsync(TEntity entity)
+    private string GetActionParameter(Limitation limitationClaims)
     {
-        var entityId = GetEntityId(entity);
+        // Remove curly braces
+        var cleanClaims = limitationClaims.Value.Trim('{', '}');
 
-        // Fetch the entities from the database
-        var limitedEntities = GetLimitedEntitiesQueryAsync();
+        // Split the string by commas
+        var parts = cleanClaims.Split(',');
 
-        // Check if the user has access to update the entity by its ID
-        var isEntityExistOrAccessed = limitedEntities.Any(e => GetEntityId(e) == entityId);
+        // Access the last element
+        var lastParameter = parts[^1].Trim(); // Using index from end operator and trimming any whitespace
 
-        if (!isEntityExistOrAccessed)
-        {
-            throw new UnauthorizedAccessException("User does not have access to update this entity.");
-        }
+        // Split the last parameter by the delimiter "$&"
+        var subParts = lastParameter.Split(new string[] {"$&"}, StringSplitOptions.None);
 
-        // Proceed with the update operation
-        dbContext.Update(entity);
-        await dbContext.SaveChangesAsync();
-
-        return entity;
-    }
-
-    public async Task<TEntity> DeleteLimitationAsync(int id)
-    {
-        // Fetch the IDs of the entities that the user has access to
-        var entityIds = await GetLimitedEntitiesQueryAsync()
-            .Select(e => GetEntityDeleteId(e))
-            .ToListAsync();
-
-        // Check if the given ID exists in the fetched entity IDs
-        if (!entityIds.Contains(id))
-        {
-            throw new UnauthorizedAccessException("User does not have access to delete this entity.");
-        }
-
-        var entity = await dbContext.Set<TEntity>().FindAsync(id)
-                     ?? throw new Exception("Entity not found.");
-        dbContext.Set<TEntity>().Remove(entity);
-        await dbContext.SaveChangesAsync();
-
-        return entity;
+        // Return the part after "$&", which is "Put"
+        return subParts.Length > 1 ? subParts[1].Trim() : string.Empty;
     }
 
 
@@ -126,7 +179,7 @@ public class SmartLimitationService<TEntity>(
         var property = typeof(TEntity).GetProperty("Id");
         return property == null
             ? throw new InvalidOperationException("Entity must have an 'Id' property.")
-            : (int) property.GetValue(entity)!;
+            : (int) (property.GetValue(entity) ?? throw new InvalidOperationException());
     }
 
     private static int GetEntityDeleteId(TEntity entity)
@@ -138,17 +191,38 @@ public class SmartLimitationService<TEntity>(
             throw new InvalidOperationException("Entity must have an 'Id' property.");
         }
 
-        return (int) property.GetValue(entity)!;
+        return (int) (property.GetValue(entity) ?? throw new InvalidOperationException());
     }
 
     private Claim RemoveLastClaimParam(Limitation limitationClaims, string limitationField)
     {
         var claimValue = limitationClaims.Value;
+
+        // Remove curly braces if present
+        claimValue = claimValue.Trim('{', '}');
+
+        // Split the string by commas
         var parts = claimValue.Split(',');
-        claimValue = string.Join(",", parts.Take(parts.Length - 1));
+
+        // Access the last element and check if it contains "$&"
+        var lastParameter = parts[^1].Trim();
+        if (lastParameter.Contains("$&"))
+        {
+            // Split the last parameter by the delimiter "$&"
+            var subParts = lastParameter.Split(new string[] {"$&"}, StringSplitOptions.None);
+
+            // Reconstruct the string without the "$&" part
+            parts[^1] = subParts[0].Trim();
+        }
+
+        // Remove the limitationField (e.g., "Id") from the parts array
+        parts = parts.Where(p => !p.Trim().Equals(limitationField, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+        // Join the parts back into a single string
+        var updatedClaimValue = string.Join(",", parts);
 
         // Create a new Claim object with the updated value
-        var updatedClaim = new Claim(limitationClaims.Type, claimValue, limitationClaims.ValueType,
+        var updatedClaim = new Claim(limitationClaims.Type, updatedClaimValue, limitationClaims.ValueType,
             limitationClaims.Issuer);
 
         return updatedClaim;
