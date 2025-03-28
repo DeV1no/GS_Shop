@@ -21,6 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 AddSwagger(builder.Services);
 
+
+
 builder.Configuration
     .AddJsonFile("policyRequirements.json", optional: true, reloadOnChange: true)
     .AddJsonFile("limitationClaims.json", optional: true, reloadOnChange: true);
@@ -103,6 +105,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, RedisAuthorizationHandler>(
 
 
 var app = builder.Build();
+
+
 
 // Set the ServiceProvider
 ServiceLocator.ServiceProvider = app.Services;

@@ -4,7 +4,18 @@ using MassTransit;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5107") // Update with your Blazor frontend URL
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
 // Add services to the container.
 builder.Configuration
     .AddJsonFile("policyRequirements.json", optional: true, reloadOnChange: true);
@@ -54,6 +65,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// app cors 
+app.UseCors("AllowBlazorClient");
 app.Run();
 
 return;

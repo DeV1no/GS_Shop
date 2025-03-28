@@ -1,0 +1,66 @@
+﻿@page "/login"
+@using GS_Shop.Home.Ui.Models
+@using GS_Shop.Home.Ui.Service
+@inject AuthService AuthService
+@inject IJSRuntime Js
+@inject AppStateService AppState
+@inject NavigationManager Navigation
+
+
+<div>
+    <label>Username:</label>
+    <input @bind="loginRequest.UserName" />
+</div>
+
+<div>
+    <label>Password:</label>
+    <input type="password" @bind="loginRequest.Password" />
+</div>
+
+<button class="btn btn-primary" @onclick="HandleLogin">Login</button>
+
+
+@code {
+    private LoginRequest loginRequest = new();
+    private string Message = "";
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+    private async Task HandleLogin()
+    {
+
+        if (string.IsNullOrWhiteSpace(loginRequest.UserName) || string.IsNullOrWhiteSpace(loginRequest.Password))
+        {
+            Message = "Please enter a username and password.";
+            return;
+        }
+
+        try
+        {
+            var result = await AuthService.LoginAsync(loginRequest);
+            if (result != null && !string.IsNullOrEmpty(result.Token))
+            {
+                await Js.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+                AppState.IsUserLogin = true;
+
+                Message = "Login Successful!";
+                Console.WriteLine("Login successful!");
+                Navigation.NavigateTo("/"); 
+                
+            }
+            else
+            {
+                Message = result?.Message ?? "Login Failed!";
+                Console.WriteLine("Login failed!");
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = "An error occurred.";
+            Console.WriteLine($"Login error: {ex.Message}");
+        }
+    }
+}

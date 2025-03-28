@@ -45,6 +45,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop.Home.Services", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop.Home.Core", "..\GS_Shop.Home\GS_Shop.Home.Core\GS_Shop.Home.Core\GS_Shop.Home.Core.csproj", "{0F13FD1F-5EAA-4C99-A919-B3C0B5D53C15}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GS_Shop.Home.Ui", "GS_Shop.Home.Ui", "{ADC65B6A-41D0-420F-A3E2-03D620D2D3A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Shop.Home.Ui", "..\GS_Shop.Home.Ui\GS_Shop.Home.Ui\GS_Shop.Home.Ui.csproj", "{B589BA33-ECB1-4F8A-9151-D627ED5D6148}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,10 @@ Global
 		{0F13FD1F-5EAA-4C99-A919-B3C0B5D53C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F13FD1F-5EAA-4C99-A919-B3C0B5D53C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F13FD1F-5EAA-4C99-A919-B3C0B5D53C15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B589BA33-ECB1-4F8A-9151-D627ED5D6148}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B589BA33-ECB1-4F8A-9151-D627ED5D6148}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B589BA33-ECB1-4F8A-9151-D627ED5D6148}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B589BA33-ECB1-4F8A-9151-D627ED5D6148}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,6 +125,7 @@ Global
 		{9DD479C0-152D-48CF-807D-136550309545} = {0B7D25A4-C66B-496D-A27D-32F046D49DF5}
 		{7C6C19B9-D44A-4F7A-8A27-CAFC47DFBBBF} = {0B7D25A4-C66B-496D-A27D-32F046D49DF5}
 		{0F13FD1F-5EAA-4C99-A919-B3C0B5D53C15} = {0B7D25A4-C66B-496D-A27D-32F046D49DF5}
+		{B589BA33-ECB1-4F8A-9151-D627ED5D6148} = {ADC65B6A-41D0-420F-A3E2-03D620D2D3A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA2C8440-7E2F-4CC0-BA5F-AFD47D9C8C34}

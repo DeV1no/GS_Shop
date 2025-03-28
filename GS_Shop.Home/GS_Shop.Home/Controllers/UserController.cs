@@ -17,7 +17,7 @@ namespace GS_Shop.Home.Controllers
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPost("Login")]
         [ProducesResponseType(typeof(LoginResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginEvent login)
