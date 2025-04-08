@@ -1,5 +1,4 @@
-﻿@page "/login"
-@using System.Text.Json
+﻿@page "/register"
 @using GS_Shop.Home.Ui.Models
 @using GS_Shop.Home.Ui.Service
 @inject AuthService AuthService
@@ -10,21 +9,29 @@
 
 <div>
     <label>Username:</label>
-    <input @bind="loginRequest.UserName" />
+    <input @bind="registerRequest.UserName" />
+</div>
+<div>
+    <label>Firstname:</label>
+    <input @bind="registerRequest.FirstName" />
+</div>
+<div>
+    <label>Lastname:</label>
+    <input @bind="registerRequest.LastName" />
 </div>
 
 <div>
     <label>Password:</label>
-    <input type="password" @bind="loginRequest.Password" />
+    <input type="password" @bind="registerRequest.Password" />
 </div>
 
-<button class="btn btn-primary" @onclick="HandleLogin">Login</button>
+<button class="btn btn-primary" @onclick="HandleLogin">Register</button>
 
-<a href="register">Dont have account? Register Now</a>
+<a href="register">Already have account? Login Now</a>
 
 
 @code {
-    private LoginRequest loginRequest = new();
+    private RegisterRequest registerRequest = new();
     private string Message = "";
     private int currentCount = 0;
 
@@ -35,7 +42,7 @@
     private async Task HandleLogin()
     {
 
-        if (string.IsNullOrWhiteSpace(loginRequest.UserName) || string.IsNullOrWhiteSpace(loginRequest.Password))
+        if (string.IsNullOrWhiteSpace(registerRequest.UserName) || string.IsNullOrWhiteSpace(registerRequest.Password))
         {
             Message = "Please enter a username and password.";
             return;
@@ -43,17 +50,13 @@
 
         try
         {
-            var result = await AuthService.LoginAsync(loginRequest);
-            if (result != null && !string.IsNullOrEmpty(result.Token))
+            var result = await AuthService.RegisterAsync(registerRequest);
+            if (result)
             {
-                await Js.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
-                await Js.InvokeVoidAsync("localStorage.setItem", "userClaim", JsonSerializer.Serialize(result.UserClaim));
-                await Js.InvokeVoidAsync("localStorage.setItem", "userLimitation",
-                    JsonSerializer.Serialize(result.UserClaimLimitation));
-                AppState.IsUserLogin = true;
                 Message = "Login Successful!";
                 Console.WriteLine("Login successful!");
                 Navigation.NavigateTo("/"); 
+                
             }
             else
             {
@@ -67,7 +70,4 @@
             Console.WriteLine($"Login error: {ex.Message}");
         }
     }
-
-   
-    
 }

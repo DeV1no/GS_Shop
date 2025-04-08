@@ -25,7 +25,23 @@ public class AuthService
         }
         else
         {
-            return new LoginResponse { Message = "Login failed" };
+          throw new HttpRequestException($"Error: {response.ReasonPhrase}");
+        }
+    }
+    
+    public async Task<bool> RegisterAsync(RegisterRequest loginRequest)
+    {
+        var httpClient = _httpClientFactory.CreateClient("ApiClient"); // Get the correct HttpClient
+
+        var response = await httpClient.PostAsJsonAsync("api/User/Register", loginRequest);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+        else
+        {
+            throw new HttpRequestException($"Error: {response.ReasonPhrase}");
         }
     }
 }
