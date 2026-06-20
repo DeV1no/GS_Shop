@@ -29,6 +29,8 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, int>
             throw new Exception("User already exists");
 
         var user = _mapper.Map<Domain.Entities.User>(request.RegisterUserDto);
+        user.NormalizedUserName = request.RegisterUserDto.UserName.ToUpper();
+        user.NormalizedEmail = request.RegisterUserDto.Email.ToUpper();
         return await _repository.RegisterUser(user, request.RegisterUserDto.Password);
     }
 }

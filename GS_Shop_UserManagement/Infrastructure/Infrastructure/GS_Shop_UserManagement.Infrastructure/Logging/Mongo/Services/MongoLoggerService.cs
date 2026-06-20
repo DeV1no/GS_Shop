@@ -27,7 +27,16 @@ namespace GS_Shop_UserManagement.Infrastructure.Logging.Mongo.Services
                     dto.UserId = userIdClaim.Value;
             }
 
-            BackgroundJob.Enqueue(() => InsertLogToMongo(dto));
+            try
+            {
+                // BackgroundJob.Enqueue may throw if Hangfire is not initialized
+                BackgroundJob.Enqueue(() => InsertLogToMongo(dto));
+            }
+            catch (Exception)
+            {
+                // Fallback to sync call if Hangfire is not available (e.g. in tests)
+                InsertLogToMongo(dto);
+            }
         }
 
         public void InsertLogToMongo(AddLogDto dto)

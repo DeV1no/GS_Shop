@@ -15,7 +15,11 @@ public class UserRepository(GSShopUserManagementDbContext context,
     : GenericRepository<User>(context), IUserRepository
 {
     public async Task<bool> IsUserExistByUserAndEmail(string userName, string email)
-        => await context.Users.AnyAsync(x => x.UserName == userName || x.Email == email);
+    {
+        var normalizedUserName = userName.ToUpper();
+        var normalizedEmail = email.ToUpper();
+        return await context.Users.AnyAsync(x => x.NormalizedUserName == normalizedUserName || x.NormalizedEmail == normalizedEmail);
+    }
 
     public async Task<User> GetUserByUserAndPassword(string password, string userName)
     {
