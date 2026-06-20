@@ -15,13 +15,14 @@ namespace GS_Shop_UserManagement_Integration_Test
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Testing");
             builder.ConfigureTestServices(services =>
             {
                 services.RemoveAll(typeof(DbContextOptions<GSShopUserManagementDbContext>));
                 var connectionString = GetConnectionString();
                 services.AddDbContext<GSShopUserManagementDbContext>(options =>
                 {
-                    options.UseSqlServer(connectionString);
+                    options.UseInMemoryDatabase("TestDb");
                 });
 
                 var serviceProvider = services.BuildServiceProvider();

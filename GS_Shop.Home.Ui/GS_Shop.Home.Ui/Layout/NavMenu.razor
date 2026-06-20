@@ -1,0 +1,103 @@
+﻿@using System.Text.Json
+@using GS_Shop.Home.Ui.Models
+@using GS_Shop.Home.Ui.Service
+@inject AppStateService AppState
+@inject IJSRuntime Js
+@inject NavigationManager Navigation
+@inject UserClaimService ClaimService
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">GS_Shop.Home.Ui</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+        @if (_hasClaim)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Login">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User List
+                </NavLink>
+            </div>
+        }
+        @if (_isUserLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <div @onclick="LogOut" class="nav-link">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Log Out
+                </div>
+            </div>
+        }
+        @if (!_isUserLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Login">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Log In / Register
+                </NavLink>
+            </div>
+        }
+        
+    </nav>
+</div>
+
+@code {
+    private bool _collapseNavMenu = true;
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
+    private bool _isUserLoggedIn;
+    private bool _hasClaim = false;
+
+    private void ToggleNavMenu()
+    {
+        _collapseNavMenu = !_collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        _isUserLoggedIn = AppState.IsUserLogin;
+        AppState.OnChange += StateChangedHandler;
+    }
+
+    private void StateChangedHandler()
+    {
+        _isUserLoggedIn = AppState.IsUserLogin;
+        StateHasChanged(); // Ensure UI updates
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateChangedHandler;
+    }
+    
+    private async Task LogOut()
+    {
+        await Js.InvokeVoidAsync("localStorage.removeItem", "authToken"); 
+        await Js.InvokeVoidAsync("localStorage.removeItem", "userClaim"); 
+        await Js.InvokeVoidAsync("localStorage.removeItem", "userLimitation"); 
+        AppState.IsUserLogin = false;
+        await InvokeAsync(StateHasChanged); 
+        Navigation.NavigateTo("/"); 
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //toDo: change claim from string to enum
+        _hasClaim = await ClaimService.HasAsync("GetUserList");
+    }
+    
+}

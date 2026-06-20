@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   mariadb:
-    image: mariadb
+    image: docker.arvancloud.ir/mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "Y1234"

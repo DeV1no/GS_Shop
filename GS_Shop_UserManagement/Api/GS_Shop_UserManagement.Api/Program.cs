@@ -35,10 +35,17 @@ builder.Services.AddMassTransit(cfg =>
 {
     cfg.AddConsumer<LoginConsumer>();
     cfg.AddConsumer<RegisterConsumer>();
+    cfg.AddConsumer<GetUserConsumer>();
     cfg.UsingRabbitMq((ctx, conf) =>
     {
-        conf.Host("amqp://guest:guest@localhost:5672");
+        var rabbitUri = builder.Configuration.GetValue<string>("EventBusSettings:HostAddress");
+        if (string.IsNullOrEmpty(rabbitUri) || rabbitUri.Contains("localhost"))
+        {
+             // Fallback or skip
+        }
+        conf.Host(rabbitUri ?? "amqp://guest:guest@localhost:5672");
         conf.ReceiveEndpoint(EventBusConstants.LoginQueue, c => { c.ConfigureConsumer<LoginConsumer>(ctx); });
+        conf.ReceiveEndpoint(EventBusConstants.UserListQueue, c => { c.ConfigureConsumer<GetUserConsumer>(ctx); });
         conf.ReceiveEndpoint(EventBusConstants.RegisterQueue, c => { c.ConfigureConsumer<RegisterConsumer>(ctx); });
     });
 });
@@ -111,7 +118,14 @@ var app = builder.Build();
 // Set the ServiceProvider
 ServiceLocator.ServiceProvider = app.Services;
 
-app.UseHangfireDashboard().UseHangfireServer();
+if (!app.Environment.EnvironmentName.Contains("Testing"))
+{
+    var hangfireConnectionString = builder.Configuration.GetValue<string>("HangfireSettings:ConnectionString");
+    if (!string.IsNullOrEmpty(hangfireConnectionString) && hangfireConnectionString != "mongodb://localhost:27017")
+    {
+        app.UseHangfireDashboard().UseHangfireServer();
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

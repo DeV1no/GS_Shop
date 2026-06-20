@@ -1,0 +1,66 @@
+﻿@using GS_Shop.Home.Ui.Service
+
+@inject AppStateService AppState
+@inject IJSRuntime Js
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        @if (_loadFinished)
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        }
+        else
+        {
+            <p>Loading...</p> <!-- Optional: Show a loading message -->
+        }
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+
+
+@code {
+    private string? _token;
+    private bool _isUserLogin;
+    private bool _loadFinished = false;
+
+    private async Task GetFromLocalStorage()
+    {
+        try
+        {
+            _token = await Js.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            Console.WriteLine($"Token retrieved: {_token}"); // Debugging log
+
+            if (!string.IsNullOrEmpty(_token))
+            {
+                AppState.IsUserLogin = true;
+                _isUserLogin = true;
+                await InvokeAsync(StateHasChanged); // Ensure UI update
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error retrieving token: {e.Message}");
+        }
+        finally
+        {
+            _loadFinished = true;
+            await InvokeAsync(StateHasChanged); // Ensure the UI updates
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetFromLocalStorage(); // Get the token from local storage
+        }
+    }
+
+}

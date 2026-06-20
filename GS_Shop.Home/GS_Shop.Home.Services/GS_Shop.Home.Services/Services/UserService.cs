@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace GS_Shop.Home.Services.Services;
 
@@ -14,13 +15,22 @@ public class UserService : IUserService
 {
     private readonly IRequestClient<LoginEvent> _requestClient;
     private readonly IRequestClient<RegisterEvent> _registerRequestClient;
+    private readonly IRequestClient<UserListEvent> _userListRequestClient;
     private readonly JwtSettings _jwtSettings;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(IRequestClient<LoginEvent> requestClient, IOptions<JwtSettings> jwtSettings, IRequestClient<RegisterEvent> registerRequestClient)
+    public UserService(
+        IRequestClient<LoginEvent> requestClient,
+        IOptions<JwtSettings> jwtSettings,
+        IRequestClient<RegisterEvent> registerRequestClient,
+        IRequestClient<UserListEvent> userListRequestClient,
+        IHttpContextAccessor httpContextAccessor)
     {
         _requestClient = requestClient;
         _registerRequestClient = registerRequestClient;
+        _userListRequestClient = userListRequestClient;
         _jwtSettings = jwtSettings.Value;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<LoginResponseDto> Login(LoginEvent login)
@@ -50,8 +60,28 @@ public class UserService : IUserService
         return response.Message;
     }
 
+    public async Task<UserListResponse> GetUserList()
+    {
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    private JwtSecurityToken GenerateToken(LoginResponse user)
+        if (string.IsNullOrEmpty(userId))
+            throw new UnauthorizedAccessException("User ID not found in token");
+
+        var userIdInt=int.Parse(userId);
+        // Optionally, you can use this userId in your logic or pass it to the UserListEvent
+        var userListEvent = new UserListEvent
+        {
+            UserId = userIdInt // (Assuming you add this property)
+        };
+        var response = await _userListRequestClient
+            .GetResponse<UserListResponse>(userListEvent);
+        if (response == null)
+            throw new Exception();
+        return response.Message;
+    }
+
+
+private JwtSecurityToken GenerateToken(LoginResponse user)
     {
         var claims = new List<Claim>
         {
