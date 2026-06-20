@@ -32,10 +32,12 @@ public static class InfrastructureServiceRegistration
                 // Return a dummy multiplexer or skip if needed for tests
                 // For now, let's try to connect but not fail if it's localhost and we are in test
                 try {
-                    return ConnectionMultiplexer.Connect(configurations ?? "localhost", options => {
+                    var mux = ConnectionMultiplexer.Connect(configurations ?? "localhost", options => {
                         options.AbortOnConnectFail = false;
                         options.ConnectTimeout = 1000;
                     });
+                    mux.GetDatabase(1);
+                    return mux;
                 } catch {
                      return null; // This might cause null refs if used, but better than failing startup if not used
                 }

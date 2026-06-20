@@ -2,6 +2,10 @@ using GS_Shop_UserManagement.Infrastructure.Policy;
 using GS_Shop.Home.Services;
 using MassTransit;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using GS_Shop.Home.Services.DTOs.User;
 
 var builder = WebApplication.CreateBuilder(args);
 //cors
@@ -37,6 +41,7 @@ builder.Services.AddStackExchangeRedisCache(opt =>
 );
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddMassTransitHostedService();
+
 var policyRequirements = AuthorizationPolicyLoader.LoadPolicies(builder.Configuration);
 builder.Services.AddAuthorization(options =>
 {

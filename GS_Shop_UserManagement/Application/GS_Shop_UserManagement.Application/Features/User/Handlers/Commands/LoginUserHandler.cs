@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using GS_Shop_UserManagement.Infrastructure.Models;
 using GS_Shop_UserManagement.Application.Contracts.Persistence;
 using GS_Shop_UserManagement.Application.DTOs.User;
 using GS_Shop_UserManagement.Application.Features.User.Requests.Commands;
@@ -59,23 +60,29 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginResponseD
         
 
         var userPermissions = user.UserClaims
-            .Select(userClaim => new Claim(userClaim.ClaimType, "true"));
+            .Select(userClaim => new Permission
+            {
+                Type = userClaim.ClaimType,
+                Value = "true"
+            }).ToList();
         var userRoles = user.Roles
-            .Select(role => new Claim(ClaimTypes.Role, role.Name));
+            .Select(role => (object)role.Name).ToList();
         var userLimitation = user.UserClaimLimitations
-            .Select(lClaim =>
-                new Claim(lClaim.ClaimLimitationValue,
-                    lClaim.LimitedIds + "," + lClaim.LimitationField+"$&" + lClaim.Action));
+            .Select(lClaim => new Limitation
+            {
+                Type = lClaim.ClaimLimitationValue,
+                Value = lClaim.LimitedIds + "," + lClaim.LimitationField + "$&" + lClaim.Action,
+                ValueType = "http://www.w3.org/2001/XMLSchema#string",
+                Issuer = "GS_Shop"
+            }).ToList();
 
-        var permissions = userPermissions as Claim[] ?? userPermissions.ToArray();
-        var roles = userRoles as Claim[] ?? userRoles.ToArray();
-        var limitations = userLimitation as Claim[] ?? userLimitation.ToArray();
-        var convertedToJson = JsonConvert.SerializeObject(new
+        var redisClaims = new RedisClaims
         {
-            permissions,
-            roles ,
-            limitations
-        });
+            Permissions = userPermissions,
+            Roles = userRoles,
+            Limitations = userLimitation
+        };
+        var convertedToJson = JsonConvert.SerializeObject(redisClaims);
        
         var randomKey = GenerateRandomKey();
         await _redisCacheService.SetAsync(randomKey, convertedToJson, TimeSpan.FromHours(4));

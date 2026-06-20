@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using GS_Shop_UserManagement.Application.DTOs.RedisClaims;
 using GS_Shop_UserManagement.Domain.Entities;
+using GS_Shop_UserManagement.Infrastructure.Models;
 using GS_Shop_UserManagement.Infrastructure.Redis;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;

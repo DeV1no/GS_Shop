@@ -18,7 +18,7 @@ namespace GS_Shop_UserManagement.Application
 
             // Add MediatR configuration from the assembly containing this code
             services.AddMediatR(Assembly.GetExecutingAssembly());
-            // jwt configs 
+/*            // jwt configs 
             var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
@@ -41,7 +41,7 @@ namespace GS_Shop_UserManagement.Application
                         
                     };
                    // options.TokenHandlers;
-                });
+                });*/
 
             return services;
 

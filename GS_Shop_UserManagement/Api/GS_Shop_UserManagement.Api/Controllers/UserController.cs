@@ -11,8 +11,7 @@ namespace GS_Shop_UserManagement.Api.Controllers;
 [ApiController]
 public class UserController(IMediator mediator) : ControllerBase
 {
-    //[Authorize(AuthenticationSchemes = "Bearer", Policy = "GetUserListPolicy")]
-    [Auth("GetUserListPolicy")]
+    [Auth("GetUserList")]
     [HttpGet("getAll")]
     public async Task<IActionResult> GetAll()
     {
@@ -37,7 +36,7 @@ public class UserController(IMediator mediator) : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(AuthenticationSchemes = "Bearer", Policy = "UpdateUserPolicy")]
+    [Auth("UpdateUser")]
     public async Task<IActionResult> UpdateUser([FromForm] UpdateUserDto dto)
     {
         var command = new UpdateUserCommand { UpdateUserDto = dto };
@@ -46,7 +45,7 @@ public class UserController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(AuthenticationSchemes = "Bearer", Policy = "DeleteUserPolicy")]
+    [Auth("DeleteUser")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var command = new DeleteUserCommand { Id = id };

@@ -39,14 +39,13 @@ public class UserService : IUserService
         if (response is null)
             throw new Exception();
 
-        var jwtSecurityToken = GenerateToken(response.Message);
         return new LoginResponseDto
         {
             Id = response.Message.Id,
             UserName = response.Message.UserName!,
             Email = response.Message.Email!,
-            Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-            ExpiresAt = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes),
+            Token = response.Message.Token,
+            ExpiresAt = response.Message.ExpiresAt,
             UserClaim = response.Message.Claim,
             UserClaimLimitation = response.Message.ClaimLimitation
         };
@@ -78,31 +77,5 @@ public class UserService : IUserService
         if (response == null)
             throw new Exception();
         return response.Message;
-    }
-
-
-private JwtSecurityToken GenerateToken(LoginResponse user)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.Name, user.UserName!),
-            new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        };
-        claims.AddRange(user.Claim.Select(userClaim => new Claim(userClaim.ClaimType, "true")));
-        // claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Name)));
-        claims.AddRange(user.ClaimLimitation.Select(lClaim =>
-            new Claim(lClaim.ClaimLimitationValue, lClaim.LimitedIds + "," + lClaim.LimitationField)));
-
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-        var jwtSecurityToken = new JwtSecurityToken(
-            issuer: _jwtSettings.Issuer,
-            audience: _jwtSettings.Audience,
-            claims: claims,
-            signingCredentials: signingCredentials,
-            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes)
-        );
-        return jwtSecurityToken;
     }
 }

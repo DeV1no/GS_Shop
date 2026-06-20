@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using GS_Shop_UserManagement.Application.DTOs.RedisClaims;
+using GS_Shop_UserManagement.Infrastructure.Models;
 using GS_Shop_UserManagement.Infrastructure.Helpers;
 using GS_Shop_UserManagement.Infrastructure.Redis;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace GS_Shop_UserManagement.Application.Attributes;
 
-public class Auth : AuthorizeAttribute, IAuthorizationFilter
+public class Auth : AuthorizeAttribute, IAsyncAuthorizationFilter
 {
     private readonly string _requiredClaim;
 
@@ -20,16 +20,21 @@ public class Auth : AuthorizeAttribute, IAuthorizationFilter
         _requiredClaim = requiredClaim;
     }
 
-    public async void OnAuthorization(AuthorizationFilterContext context)
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var user = context.HttpContext.User;
-        if (user == null || !user.Identity.IsAuthenticated)
+        if (user == null || user.Identity == null || !user.Identity.IsAuthenticated)
         {
             context.Result = new UnauthorizedResult();
             return;
         }
 
-        var redisKey = user.Claims.FirstOrDefault(x => x.Type == "redisKey")?.Value;
+        var redisKey = user.FindFirstValue("redisKey");
+        if (string.IsNullOrEmpty(redisKey))
+        {
+            redisKey = user.Claims.FirstOrDefault(x => x.Type == "redisKey")?.Value;
+        }
+
         if (string.IsNullOrEmpty(redisKey))
         {
             context.Result = new UnauthorizedResult();
@@ -40,7 +45,7 @@ public class Auth : AuthorizeAttribute, IAuthorizationFilter
         var redisCacheService = ServiceLocator.ServiceProvider.GetRequiredService<IRedisCacheService>();
         var redisData = await redisCacheService.GetAsync(redisKey);
 
-        if (redisData == null)
+        if (string.IsNullOrEmpty(redisData))
         {
             context.Result = new UnauthorizedResult();
             return;
@@ -50,7 +55,7 @@ public class Auth : AuthorizeAttribute, IAuthorizationFilter
         var redisClaims = JsonConvert.DeserializeObject<RedisClaims>(redisData);
 
         if (redisClaims == null || redisClaims.Permissions == null || 
-            !redisClaims.Permissions.Any(c => c.Type == _requiredClaim && c.Value == "true"))
+            !redisClaims.Permissions.Any(c => c.Type.Equals(_requiredClaim, StringComparison.OrdinalIgnoreCase) && (c.Value.Equals("true", StringComparison.OrdinalIgnoreCase))))
         {
             context.Result = new ForbidResult();
         }

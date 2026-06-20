@@ -9,6 +9,10 @@ using GS_Shop_UserManagement.Application;
 using GS_Shop_UserManagement.Infrastructure;
 using GS_Shop_UserManagement.Infrastructure.Auth;
 using GS_Shop_UserManagement.Infrastructure.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using GS_Shop_UserManagement.Application.Models;
 using Microsoft.OpenApi.Models;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +68,6 @@ builder.Services.AddAuthorization(options =>
             var requiredClaims = policyRequirements[policyName];
             foreach (var claim in requiredClaims)
             {
-                policy.RequireClaim(claim);
                 policy.Requirements.Add(new RedisAuthorizationRequirement());
             }
         });
@@ -73,8 +76,11 @@ builder.Services.AddAuthorization(options =>
 
 var policyConfiguration = PolicyConfigurationReader.ReadPolicyConfiguration("./policyRequirements.json");
 
+// JWT Configuration
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-/*builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -87,11 +93,12 @@ var policyConfiguration = PolicyConfigurationReader.ReadPolicyConfiguration("./p
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            ClockSkew = TimeSpan.Zero
         };
-    }); */
+    });
 
 
 builder.Services.AddHttpClient();
