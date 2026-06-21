@@ -34,12 +34,20 @@ namespace GS_Shop.Home.Controllers
             return Ok(await _service.Register(register));
         }
         
-        [HttpPost("GetUserList")]
+        [HttpGet("GetUserList")]
         [ProducesResponseType(typeof(UserListEvent), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetUserList()
         {
             return Ok(await _service.GetUserList());
+        }
+        
+        [HttpGet("GetUserListPublic")]
+        [ProducesResponseType(typeof(List<UserListPublicResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetUserListPublic()
+        {
+            return Ok(await _service.GetUserListPublic());
         }
     }
 }

@@ -70,6 +70,9 @@ public class UserRepository(GSShopUserManagementDbContext context,
     public new async Task<IReadOnlyList<User>> GetAll()
         => await smartLimitationService.GetLimitedEntitiesQueryAsync().ToListAsync();
 
+    public async Task<IReadOnlyList<User>> GetAllNoLimit()
+        => await context.Users.AsNoTracking().ToListAsync();
+
 
     public new async Task<User> Update(User entity)
     {

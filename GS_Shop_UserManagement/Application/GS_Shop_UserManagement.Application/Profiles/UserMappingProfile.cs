@@ -18,5 +18,6 @@ public class UserMappingProfile : Profile
         CreateMap<UserClaimLimitation, UserClaimLimitationDto>();
         CreateMap<UserClaim, UserClaimDto>();
         CreateMap<UserListDto, UserListResponse>();
+        CreateMap<UserListDto, UserListPublicResponse>();
     }
 }

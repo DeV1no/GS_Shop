@@ -1,5 +1,6 @@
 using GS_Shop_UserManagement.Infrastructure.Policy;
 using GS_Shop.Home.Services;
+using EventBus.Messages.Events;
 using MassTransit;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +31,10 @@ builder.Services.AddEndpointsApiExplorer();
 AddSwagger(builder.Services);
 builder.Services.AddMassTransit(cfg =>
 {
+    cfg.AddRequestClient<LoginEvent>();
+    cfg.AddRequestClient<RegisterEvent>();
+    cfg.AddRequestClient<UserListEvent>();
+    cfg.AddRequestClient<UserListPublicEvent>();
     cfg.UsingRabbitMq((ctx, conf) =>
     {
         // conf.Host(builder.Configuration.GetValue<string>("EventBussSettings:HostAddress"));

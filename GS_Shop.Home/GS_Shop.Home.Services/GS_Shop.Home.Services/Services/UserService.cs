@@ -16,6 +16,7 @@ public class UserService : IUserService
     private readonly IRequestClient<LoginEvent> _requestClient;
     private readonly IRequestClient<RegisterEvent> _registerRequestClient;
     private readonly IRequestClient<UserListEvent> _userListRequestClient;
+    private readonly IRequestClient<UserListPublicEvent> _userListPublicRequestClient;
     private readonly JwtSettings _jwtSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -24,11 +25,13 @@ public class UserService : IUserService
         IOptions<JwtSettings> jwtSettings,
         IRequestClient<RegisterEvent> registerRequestClient,
         IRequestClient<UserListEvent> userListRequestClient,
+        IRequestClient<UserListPublicEvent> userListPublicRequestClient,
         IHttpContextAccessor httpContextAccessor)
     {
         _requestClient = requestClient;
         _registerRequestClient = registerRequestClient;
         _userListRequestClient = userListRequestClient;
+        _userListPublicRequestClient = userListPublicRequestClient;
         _jwtSettings = jwtSettings.Value;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -77,5 +80,18 @@ public class UserService : IUserService
         if (response == null)
             throw new Exception();
         return response.Message;
+    }
+    
+    public async Task<List<UserListPublicResponse>> GetUserListPublic()
+    {
+        var userListEvent = new UserListPublicEvent
+        {
+        };
+        var response = await _userListPublicRequestClient
+            .GetResponse<UserListPublicResponseList>(userListEvent);
+        if (response == null)
+            throw new Exception();
+
+        return response.Message.Users;
     }
 }

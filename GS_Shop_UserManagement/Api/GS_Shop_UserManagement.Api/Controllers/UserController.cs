@@ -18,6 +18,13 @@ public class UserController(IMediator mediator) : ControllerBase
         var allocationList = await mediator.Send(new GetAllUserRequest());
         return Ok(allocationList);
     }
+    
+    [HttpGet("getAllPublic")]
+    public async Task<IActionResult> GetAllPublic()
+    {
+        var allocationList = await mediator.Send(new GetAllUserPublicRequest());
+        return Ok(allocationList);
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)

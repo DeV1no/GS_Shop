@@ -40,6 +40,7 @@ builder.Services.AddMassTransit(cfg =>
     cfg.AddConsumer<LoginConsumer>();
     cfg.AddConsumer<RegisterConsumer>();
     cfg.AddConsumer<GetUserConsumer>();
+    cfg.AddConsumer<GetUserPublicConsumer>();
     cfg.UsingRabbitMq((ctx, conf) =>
     {
         var rabbitUri = builder.Configuration.GetValue<string>("EventBusSettings:HostAddress");
@@ -51,6 +52,7 @@ builder.Services.AddMassTransit(cfg =>
         conf.ReceiveEndpoint(EventBusConstants.LoginQueue, c => { c.ConfigureConsumer<LoginConsumer>(ctx); });
         conf.ReceiveEndpoint(EventBusConstants.UserListQueue, c => { c.ConfigureConsumer<GetUserConsumer>(ctx); });
         conf.ReceiveEndpoint(EventBusConstants.RegisterQueue, c => { c.ConfigureConsumer<RegisterConsumer>(ctx); });
+        conf.ReceiveEndpoint(EventBusConstants.UserListPublicQueue, c => { c.ConfigureConsumer<GetUserPublicConsumer>(ctx); });
     });
 });
 builder.Services.AddMassTransitHostedService();
